@@ -1,4 +1,5 @@
 # national_weather
+<<<<<<< HEAD
 
 A new Flutter project.
 
@@ -14,3 +15,6 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+weather app using google's geocoding api to fetch coordinates, and plug them into the national weather api.
+>>>>>>> 76e7ed51007b5e65ae2eac155082a729e4f812ee
