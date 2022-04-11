@@ -2,6 +2,7 @@ import 'dart:convert' as convert;
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:national_weather/Widgets/glass.dart';
 import 'package:national_weather/models/geocoding/main/main.dart';
 import 'package:national_weather/models/office/office.dart';
 import 'package:national_weather/models/sharedpreferences/sharedPref.dart';
@@ -357,7 +358,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(20),
                           image: DecorationImage(
                             fit: BoxFit.cover,
                             image: NetworkImage(
@@ -365,31 +366,54 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      sharedPref.short_name.toString(),
-                                    ),
-                                    Text(sharedPref.shortForecast.toString())
-                                  ],
+                        child: GlassMorphism(
+                          blur: 5,
+                          opacity: 0,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Text(
+                                          sharedPref.short_name.toString(),
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Text(sharedPref.shortForecast
+                                            .toString()),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      '${sharedPref.temperature}°',
-                                    ),
-                                    Text(sharedPref.forecastUrl.toString())
-                                  ],
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Text(
+                                          '${sharedPref.temperature}°',
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
+                                      ),
+                                      // const Text(''),
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                              sharedPref.icon.toString()),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

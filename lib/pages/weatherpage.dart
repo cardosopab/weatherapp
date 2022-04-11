@@ -1,4 +1,5 @@
 import 'dart:convert' as convert;
+import 'dart:ui';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -96,99 +97,116 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                               .properties?.periods?.first.icon
                               .toString() ??
                           'null'))),
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(40.0),
-                        child: Column(
-                          children: [
-                            // Text(coordinates.toString()),
-                            Text(widget.sharedPref.short_name.toString()),
-                            // Text(),
-                            Padding(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: 5,
+                  sigmaY: 5,
+                ),
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(40.0),
+                          child: GlassMorphism(
+                            blur: 30,
+                            opacity: 0,
+                            child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                '${weatherHourly.properties?.periods?.first.temperature.toString()}°',
-                                style: const TextStyle(fontSize: 50),
+                              child: Column(
+                                children: [
+                                  // Text(coordinates.toString()),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(widget.sharedPref.short_name
+                                        .toString()),
+                                  ),
+                                  // Text(),
+                                  Text(
+                                    '${weatherHourly.properties?.periods?.first.temperature.toString()}°',
+                                    style: const TextStyle(fontSize: 50),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(weatherHourly.properties
+                                            ?.periods?.first.shortForecast
+                                            .toString() ??
+                                        'null'),
+                                  ),
+                                  // Text(DateFormat.jm().format(DateTime.now())),
+                                ],
                               ),
                             ),
-                            Text(weatherHourly
-                                    .properties?.periods?.first.shortForecast
-                                    .toString() ??
-                                'null'),
-                            Text(DateFormat.jm().format(DateTime.now())),
-                          ],
+                          ),
                         ),
-                      ),
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SizedBox(
-                            height: 125,
-                            width: MediaQuery.of(context).size.width,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: 10,
-                              // weatherHourly.properties?.periods?.length,
-                              // weatherHourly.properties?.periods
-                              //             .toString()
-                              //             .length <
-                              //         10
-                              //     ? weatherHourly.properties?.periods
-                              //         .toString()
-                              //         .length
-                              //     : 10,
-                              itemBuilder: (context, index) => Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GlassMorphism(
-                                  blur: 20,
-                                  opacity: 0.2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        // Text(weatherHourly.properties?
-                                        //     .periods?[index].startTime
-                                        //     .toString()),
-                                        // Text(DateTime.now().toString()),
-                                        Text(
-                                          DateFormat.j().format(DateTime.parse(
-                                              (weatherHourly
-                                                      .properties
-                                                      ?.periods?[index]
-                                                      .startTime
-                                                      .toString()
-                                                      .substring(0, 19) ??
-                                                  '2022-03-26T10:00:00'))),
-                                          // Text(DateFormat.j().format(
-                                          //     DateTime.parse(weatherHourly
-                                          //             .properties?
-                                          //             .periods ?[index]
-                                          //             .startTime
-                                          //             .toString()
-                                          //             .substring(0, 19) ??
-                                          //         'null'))),
-                                          // Text(DateFormat.j().format(
-                                          //     DateTime.parse(
-                                          //         '2022-03-26T10:00:00'))),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: CircleAvatar(
-                                            backgroundImage: NetworkImage(
-                                                weatherHourly.properties
-                                                        ?.periods?[index].icon
-                                                        .toString() ??
-                                                    'null'),
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SizedBox(
+                              height: 125,
+                              width: MediaQuery.of(context).size.width,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: 10,
+                                // weatherHourly.properties?.periods?.length,
+                                // weatherHourly.properties?.periods
+                                //             .toString()
+                                //             .length <
+                                //         10
+                                //     ? weatherHourly.properties?.periods
+                                //         .toString()
+                                //         .length
+                                //     : 10,
+                                itemBuilder: (context, index) => Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: GlassMorphism(
+                                    blur: 30,
+                                    opacity: 0,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        children: [
+                                          // Text(weatherHourly.properties?
+                                          //     .periods?[index].startTime
+                                          //     .toString()),
+                                          // Text(DateTime.now().toString()),
+                                          Text(
+                                            DateFormat.j().format(
+                                                DateTime.parse((weatherHourly
+                                                        .properties
+                                                        ?.periods?[index]
+                                                        .startTime
+                                                        .toString()
+                                                        .substring(0, 19) ??
+                                                    '2022-03-26T10:00:00'))),
+                                            // Text(DateFormat.j().format(
+                                            //     DateTime.parse(weatherHourly
+                                            //             .properties?
+                                            //             .periods ?[index]
+                                            //             .startTime
+                                            //             .toString()
+                                            //             .substring(0, 19) ??
+                                            //         'null'))),
+                                            // Text(DateFormat.j().format(
+                                            //     DateTime.parse(
+                                            //         '2022-03-26T10:00:00'))),
                                           ),
-                                        ),
-                                        Text(
-                                          '${weatherHourly.properties?.periods?[index].temperature.toString()}°',
-                                        ),
-                                      ],
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: CircleAvatar(
+                                              backgroundImage: NetworkImage(
+                                                  weatherHourly.properties
+                                                          ?.periods?[index].icon
+                                                          .toString() ??
+                                                      'null'),
+                                            ),
+                                          ),
+                                          Text(
+                                            '${weatherHourly.properties?.periods?[index].temperature.toString()}°',
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -196,77 +214,79 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                             ),
                           ),
                         ),
-                      ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        // itemCount: weather.properties?.periods?.length,
-                        itemCount: 10,
-                        // weather.properties?.periods.toString().length < 10
-                        //     ? weather.properties?.periods.toString().length
-                        //     : 10,
-                        itemBuilder: (context, index) => Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: GlassMorphism(
-                            blur: 20,
-                            opacity: 0.2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  Column(
-                                    children: [
-                                      SizedBox(
-                                        width: 75,
-                                        child: Text(weather.properties
-                                                ?.periods?[index].name
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          // itemCount: weather.properties?.periods?.length,
+                          itemCount: 10,
+                          // weather.properties?.periods.toString().length < 10
+                          //     ? weather.properties?.periods.toString().length
+                          //     : 10,
+                          itemBuilder: (context, index) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: GlassMorphism(
+                              blur: 30,
+                              opacity: 0,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      children: [
+                                        SizedBox(
+                                          width: 75,
+                                          child: Text(weather.properties
+                                                  ?.periods?[index].name
+                                                  .toString() ??
+                                              'null'),
+                                        ),
+                                        Text(
+                                          weather.properties?.periods?[index]
+                                                      .isDaytime ==
+                                                  false
+                                              ? "Low ${weather.properties?.periods?[index].temperature.toString()}°${weather.properties?.periods?[index].temperatureUnit.toString()}"
+                                              : "High ${weather.properties?.periods?[index].temperature.toString()} °${weather.properties?.periods?[index].temperatureUnit.toString()}",
+                                        ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: CircleAvatar(
+                                        backgroundImage: NetworkImage(weather
+                                                .properties
+                                                ?.periods?[index]
+                                                .icon
                                                 .toString() ??
                                             'null'),
                                       ),
-                                      Text(
-                                        weather.properties?.periods?[index]
-                                                    .isDaytime ==
-                                                false
-                                            ? "Low ${weather.properties?.periods?[index].temperature.toString()}°${weather.properties?.periods?[index].temperatureUnit.toString()}"
-                                            : "High ${weather.properties?.periods?[index].temperature.toString()} °${weather.properties?.periods?[index].temperatureUnit.toString()}",
-                                      ),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: CircleAvatar(
-                                      backgroundImage: NetworkImage(weather
-                                              .properties?.periods?[index].icon
-                                              .toString() ??
-                                          'null'),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: ReadMoreText(
-                                        weather.properties?.periods?[index]
-                                                .detailedForecast
-                                                .toString() ??
-                                            'null',
-                                        trimLines: 3,
-                                        trimMode: TrimMode.Line,
-                                        trimCollapsedText: 'Read More',
-                                        trimExpandedText: 'Read Less',
-                                        lessStyle: const TextStyle(
-                                            color: Colors.purple),
-                                        moreStyle: const TextStyle(
-                                            color: Colors.purple),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ReadMoreText(
+                                          weather.properties?.periods?[index]
+                                                  .detailedForecast
+                                                  .toString() ??
+                                              'null',
+                                          trimLines: 3,
+                                          trimMode: TrimMode.Line,
+                                          trimCollapsedText: 'Read More',
+                                          trimExpandedText: 'Read Less',
+                                          lessStyle: const TextStyle(
+                                              color: Colors.purple),
+                                          moreStyle: const TextStyle(
+                                              color: Colors.purple),
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                ],
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
