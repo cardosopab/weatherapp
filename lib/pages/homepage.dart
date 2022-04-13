@@ -1,15 +1,14 @@
 import 'dart:convert' as convert;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:national_weather/Widgets/glass.dart';
+import 'package:national_weather/Widgets/isDaytime.dart';
 import 'package:national_weather/models/geocoding/main/main.dart';
 import 'package:national_weather/models/office/office.dart';
 import 'package:national_weather/models/sharedpreferences/sharedPref.dart';
-import 'package:national_weather/pages/details.dart';
 import 'package:national_weather/pages/weatherpage.dart';
-import 'package:riverpod/riverpod.dart';
-import 'package:swipeable_tile/swipeable_tile.dart';
 import '../models/nationalweather/periods/periods.dart';
 import '../models/nationalweather/properties/properties.dart';
 import '../models/nationalweather/weather/models.dart';
@@ -22,30 +21,40 @@ String coordinates = '';
 String forecastUrl = '';
 String forecastHourlyUrl = '';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   late SharedPreferences sharedPreferencesInstance;
   List<SharedPref> sharedPreferencesList = <SharedPref>[];
-  // List sharedPreferencesList = [];
   @override
   void initState() {
-    initSharedPreferences();
     super.initState();
+    initSharedPreferences().then((_) async {
+      // return null;
+      // final value = ref.read(isDaytimeProvider);
+      // print(value);
+      ref.read(isDaytimeProvider.notifier).state =
+          sharedPreferencesList.first.isDaytime!;
+      // sharedPreferencesList.first.isDaytime;
+      print(sharedPreferencesList.first.isDaytime);
+      // sharedPreferencesList.first.isDaytime = await ref.read(isDaytimeProvider);
+      print(isDaytimeProvider);
+    });
   }
 
-  initSharedPreferences() async {
+  Future initSharedPreferences() async {
     sharedPreferencesInstance = await SharedPreferences.getInstance();
-    loadPreferences();
+    await loadPreferences();
     for (var i = 0; i < sharedPreferencesList.length; i++) {
-      fetchHourlyForecast(sharedPreferencesList[i].forecastHourlyUrl.toString())
+      await fetchHourlyForecast(
+              sharedPreferencesList[i].forecastHourlyUrl.toString())
           .then((_) {
         // var name = listResults.results?.first.formatted_address;
 
@@ -59,13 +68,16 @@ class _HomePageState extends State<HomePage> {
             weatherHourly.properties?.periods?.first.shortForecast;
         sharedPreferencesList[i].temperature =
             weatherHourly.properties?.periods?.first.temperature.toString();
+        sharedPreferencesList[i].isDaytime =
+            weatherHourly.properties?.periods?.first.isDaytime;
+        // print(weatherHourly.properties?.periods?.first.isDaytime);
         // location.forecastHourlyUrl = forecastHourlyUrl;
         // location.forecastUrl = forecastUrl;
         // print('ForecastUrl: $forecastUrl');
         // print('Location ForecastUrl:${location.forecastUrl}');
       });
-      print(
-          'initSharedPreferences sharedPref:${sharedPreferencesList[i].toJson().toString()}');
+      // print(
+      //     'initSharedPreferences sharedPref:${sharedPreferencesList[i].toJson().toString()}');
     }
   }
 
@@ -76,7 +88,7 @@ class _HomePageState extends State<HomePage> {
     sharedPreferencesInstance.setStringList('location', spList);
   }
 
-  void loadPreferences() {
+  Future loadPreferences() async {
     List<String>? spList = sharedPreferencesInstance.getStringList('location');
     sharedPreferencesList = spList
             ?.map((e) => SharedPref.fromJson(convert.jsonDecode(e)))
@@ -237,6 +249,8 @@ class _HomePageState extends State<HomePage> {
                               .toString();
                           location.forecastHourlyUrl = forecastHourlyUrl;
                           location.forecastUrl = forecastUrl;
+                          location.isDaytime =
+                              weather.properties?.periods?.first.isDaytime;
                           print('ForecastUrl: $forecastUrl');
                           print('Location ForecastUrl:${location.forecastUrl}');
                         },
@@ -254,6 +268,7 @@ class _HomePageState extends State<HomePage> {
                                 temperature: location.temperature,
                                 forecastHourlyUrl: location.forecastHourlyUrl,
                                 forecastUrl: location.forecastUrl,
+                                isDaytime: location.isDaytime,
                               ),
                             );
                             return;
@@ -283,6 +298,7 @@ class _HomePageState extends State<HomePage> {
                                 temperature: location.temperature,
                                 forecastHourlyUrl: location.forecastHourlyUrl,
                                 forecastUrl: location.forecastUrl,
+                                isDaytime: location.isDaytime,
                               ),
                             );
                           }
@@ -367,8 +383,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         child: GlassMorphism(
-                          blur: 5,
-                          opacity: 0,
+                          blur: 2,
+                          opacity: .2,
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(

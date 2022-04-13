@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:national_weather/Widgets/glass.dart';
 import 'package:flutter/material.dart';
+import 'package:national_weather/Widgets/isDaytime.dart';
 import 'package:national_weather/models/sharedpreferences/sharedPref.dart';
 import 'package:national_weather/pages/homepage.dart';
 import '../models/nationalweather/periods/periods.dart';
@@ -31,19 +32,11 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
   @override
   void initState() {
     Future.delayed(Duration.zero).then((value) async {
-      // ref.read(coordinatesProvider);
-      // ref.read(forecastProvider);
-      // ref.read(forecastHourlyProvider);
-      // final forecastUrl = ref.watch(forecastProvider);
-      // final forecastHourlyUrl = ref.watch(forecastHourlyProvider);
-      // print('initState forecastUrl:$forecastUrl');
-      // print('initState forecastHourlyUrl:$forecastHourlyUrl');
-      // fetchForecast(forecastUrl.toString());
-      // fetchHourlyForecast(forecastHourlyUrl);
       await fetchForecast(widget.sharedPref.forecastUrl.toString());
       await fetchHourlyForecast(widget.sharedPref.forecastHourlyUrl.toString());
-      print('Forecast: ${widget.sharedPref.forecastUrl}');
-      print('ForecastHourly: ${widget.sharedPref.forecastHourlyUrl}');
+      // print('Forecast: ${widget.sharedPref.forecastUrl}');
+      print('isDaytime: ${widget.sharedPref.isDaytime}');
+      print(widget.sharedPref.icon);
     });
     super.initState();
   }
@@ -60,7 +53,7 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
       weatherHourly;
       propertiesHourly;
       periodsHourly;
-      print('After Hourly: ${weatherHourly.type}');
+      // print('After Hourly: ${weatherHourly.type}');
     });
   }
 
@@ -81,7 +74,10 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
 
   @override
   Widget build(BuildContext context) {
+    double blur = 30;
+    double opacity = .4;
     // final coordinates = ref.watch(coordinatesProvider);
+    // bool isDaytime = ref.watch(isDaytimeProvider);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -99,8 +95,8 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                           'null'))),
               child: BackdropFilter(
                 filter: ImageFilter.blur(
-                  sigmaX: 5,
-                  sigmaY: 5,
+                  sigmaX: 2,
+                  sigmaY: 2,
                 ),
                 child: Center(
                   child: SingleChildScrollView(
@@ -110,8 +106,8 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                         Padding(
                           padding: const EdgeInsets.all(40.0),
                           child: GlassMorphism(
-                            blur: 30,
-                            opacity: 0,
+                            blur: blur,
+                            opacity: opacity,
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
@@ -161,8 +157,8 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                 itemBuilder: (context, index) => Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: GlassMorphism(
-                                    blur: 30,
-                                    opacity: 0,
+                                    blur: blur,
+                                    opacity: opacity,
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Column(
@@ -225,8 +221,8 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                           itemBuilder: (context, index) => Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: GlassMorphism(
-                              blur: 30,
-                              opacity: 0,
+                              blur: blur,
+                              opacity: opacity,
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Row(

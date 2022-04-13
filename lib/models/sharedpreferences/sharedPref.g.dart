@@ -13,6 +13,7 @@ SharedPref _$SharedPrefFromJson(Map<String, dynamic> json) => SharedPref(
       temperature: json['temperature'] as String?,
       forecastHourlyUrl: json['forecastHourlyUrl'] as String?,
       forecastUrl: json['forecastUrl'] as String?,
+      isDaytime: json['isDaytime'] as bool?,
     );
 
 Map<String, dynamic> _$SharedPrefToJson(SharedPref instance) =>
@@ -23,4 +24,5 @@ Map<String, dynamic> _$SharedPrefToJson(SharedPref instance) =>
       'temperature': instance.temperature,
       'forecastHourlyUrl': instance.forecastHourlyUrl,
       'forecastUrl': instance.forecastUrl,
+      'isDaytime': instance.isDaytime,
     };
