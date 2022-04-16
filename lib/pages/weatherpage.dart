@@ -95,8 +95,8 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                           'null'))),
               child: BackdropFilter(
                 filter: ImageFilter.blur(
-                  sigmaX: 2,
-                  sigmaY: 2,
+                  sigmaX: 10,
+                  sigmaY: 10,
                 ),
                 child: Center(
                   child: SingleChildScrollView(
@@ -106,6 +106,8 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                         Padding(
                           padding: const EdgeInsets.all(40.0),
                           child: GlassMorphism(
+                            isDaytime: weatherHourly
+                                .properties?.periods?.first.isDaytime,
                             blur: blur,
                             opacity: opacity,
                             child: Padding(
@@ -157,6 +159,8 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                 itemBuilder: (context, index) => Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: GlassMorphism(
+                                    isDaytime: weatherHourly
+                                        .properties?.periods?.first.isDaytime,
                                     blur: blur,
                                     opacity: opacity,
                                     child: Padding(
@@ -221,6 +225,8 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                           itemBuilder: (context, index) => Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: GlassMorphism(
+                              isDaytime: weatherHourly
+                                  .properties?.periods?.first.isDaytime,
                               blur: blur,
                               opacity: opacity,
                               child: Padding(
@@ -269,9 +275,9 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                           trimCollapsedText: 'Read More',
                                           trimExpandedText: 'Read Less',
                                           lessStyle: const TextStyle(
-                                              color: Colors.purple),
+                                              color: Colors.white),
                                           moreStyle: const TextStyle(
-                                              color: Colors.purple),
+                                              color: Colors.white),
                                         ),
                                       ),
                                     )

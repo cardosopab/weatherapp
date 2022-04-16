@@ -383,6 +383,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                         ),
                         child: GlassMorphism(
+                          isDaytime: weatherHourly
+                              .properties?.periods?.first.isDaytime,
                           blur: 2,
                           opacity: .2,
                           child: Padding(
@@ -437,6 +439,38 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                 );
               },
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  const Center(
+                    child:
+                        Text('Learn more about the National Weather Service.'),
+                  ),
+                  const Center(
+                    child: Text(
+                        'And the National Oceanic and Atmospheric Administraion'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: const [
+                        CircleAvatar(
+                          radius: 35,
+                          backgroundImage: AssetImage(
+                              'assets/images/180px-US-NationalWeatherService-Logo.svg.png'),
+                        ),
+                        CircleAvatar(
+                          radius: 35,
+                          backgroundImage: AssetImage('assets/images/noaa.png'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
