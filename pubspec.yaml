@@ -43,6 +43,7 @@ dependencies:
   shared_preferences: ^2.0.13
   swipeable_tile: ^1.0.0+6
   flutter_slidable: ^1.2.0
+  url_launcher: ^6.0.20
   
 
 dev_dependencies:

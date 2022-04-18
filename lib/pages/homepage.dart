@@ -1,4 +1,5 @@
 import 'dart:convert' as convert;
+import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart' as http;
@@ -9,6 +10,7 @@ import 'package:national_weather/models/geocoding/main/main.dart';
 import 'package:national_weather/models/office/office.dart';
 import 'package:national_weather/models/sharedpreferences/sharedPref.dart';
 import 'package:national_weather/pages/weatherpage.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/nationalweather/periods/periods.dart';
 import '../models/nationalweather/properties/properties.dart';
 import '../models/nationalweather/weather/models.dart';
@@ -444,13 +446,56 @@ class _HomePageState extends ConsumerState<HomePage> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  const Center(
-                    child:
-                        Text('Learn more about the National Weather Service.'),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          const TextSpan(text: 'Learn more about the '),
+                          TextSpan(
+                            text: 'National Weather Service',
+                            style: const TextStyle(
+                                decoration: TextDecoration.underline,
+                                color: Colors.blue),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () async {
+                                var url = 'https://www.weather.gov/';
+                                if (await canLaunch(url)) {
+                                  await launch(url);
+                                } else {
+                                  throw 'Cannot load Url';
+                                }
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const Center(
-                    child: Text(
-                        'And the National Oceanic and Atmospheric Administraion'),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          const TextSpan(text: 'And the '),
+                          TextSpan(
+                            text:
+                                'National Oceanic & Atmospheric Administraion',
+                            style: const TextStyle(
+                                decoration: TextDecoration.underline,
+                                color: Colors.blue),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () async {
+                                var url = 'https://www.noaa.gov/';
+                                if (await canLaunch(url)) {
+                                  await launch(url);
+                                } else {
+                                  throw 'Cannot load Url';
+                                }
+                              },
+                          )
+                        ],
+                      ),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
