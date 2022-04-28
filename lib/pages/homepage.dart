@@ -1,5 +1,6 @@
 import 'dart:convert' as convert;
 import 'package:flutter/gestures.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart' as http;
@@ -118,10 +119,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   SharedPref location = SharedPref();
 
   Future<String> getCoordinates(address) async {
+    var GEOCODING = dotenv.env["GEOCODING"];
     final response = await http.get(Uri.parse(
-        'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=AIzaSyBqaeoTwpKK-ORtYwrqwbnkqAgxUInOzJc'));
-    // 'http://192.168.56.1:8000/geocoding'));
-    // 'http://10.0.2.2:8000/geocoding'));
+        'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$GEOCODING'));
     var jsonBody = await convert.json.decode(response.body);
     listResults = Main.fromJson(jsonBody);
     var lat = listResults.results?.first.geometry?.location?.lat.toString();
