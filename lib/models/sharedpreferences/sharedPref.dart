@@ -11,6 +11,7 @@ class SharedPref {
       forecastHourlyUrl,
       forecastUrl;
   bool? isDaytime;
+  int? index;
 
   SharedPref({
     this.short_name,
@@ -20,6 +21,7 @@ class SharedPref {
     this.forecastHourlyUrl,
     this.forecastUrl,
     this.isDaytime,
+    this.index,
   });
   factory SharedPref.fromJson(Map<String, dynamic> json) =>
       _$SharedPrefFromJson(json);

@@ -1,4 +1,5 @@
 import 'dart:convert' as convert;
+import 'dart:developer';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,23 +7,23 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:national_weather/Widgets/glass.dart';
-import 'package:national_weather/Widgets/isDaytime.dart';
 import 'package:national_weather/models/geocoding/main/main.dart';
 import 'package:national_weather/models/office/office.dart';
 import 'package:national_weather/models/sharedpreferences/sharedPref.dart';
 import 'package:national_weather/pages/weatherpage.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../http/fetch.dart';
 import '../models/nationalweather/periods/periods.dart';
-import '../models/nationalweather/properties/properties.dart';
 import '../models/nationalweather/weather/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final coordinatesProvider = StateProvider((_) => coordinates);
-final forecastProvider = StateProvider((_) => forecastUrl);
-final forecastHourlyProvider = StateProvider((_) => forecastHourlyUrl);
 String coordinates = '';
 String forecastUrl = '';
 String forecastHourlyUrl = '';
+List<List<Periods>> hourlyList = [];
+List<List<Periods>> forecastList = [];
+final hourlyListProvider = StateProvider((_) => hourlyList);
+final forecastListProvider = StateProvider((_) => forecastList);
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -39,17 +40,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
-    initSharedPreferences().then((_) async {
-      // return null;
-      // final value = ref.read(isDaytimeProvider);
-      // print(value);
-      ref.read(isDaytimeProvider.notifier).state =
-          sharedPreferencesList.first.isDaytime!;
-      // sharedPreferencesList.first.isDaytime;
-      print(sharedPreferencesList.first.isDaytime);
-      // sharedPreferencesList.first.isDaytime = await ref.read(isDaytimeProvider);
-      print(isDaytimeProvider);
-    });
+    initSharedPreferences();
   }
 
   Future initSharedPreferences() async {
@@ -57,30 +48,43 @@ class _HomePageState extends ConsumerState<HomePage> {
     await loadPreferences();
     for (var i = 0; i < sharedPreferencesList.length; i++) {
       await fetchHourlyForecast(
-              sharedPreferencesList[i].forecastHourlyUrl.toString())
-          .then((_) {
-        // var name = listResults.results?.first.formatted_address;
+        sharedPreferencesList[i].forecastHourlyUrl.toString(),
+      ).then(
+        (weatherHourly) {
+          setState(() {
+            weatherHourly;
+          });
+          List<Periods> list = [];
+          num length = weatherHourly.properties?.periods?.length as num;
+          for (var k = 0; k < length; k++) {
+            list.add(weatherHourly.properties!.periods![k]);
+          }
+          hourlyList.add(list);
+          sharedPreferencesList[i].icon =
+              weatherHourly.properties?.periods?.first.icon;
+          sharedPreferencesList[i].shortForecast =
+              weatherHourly.properties?.periods?.first.shortForecast;
+          sharedPreferencesList[i].temperature =
+              weatherHourly.properties?.periods?.first.temperature.toString();
+          sharedPreferencesList[i].isDaytime =
+              weatherHourly.properties?.periods?.first.isDaytime;
+          sharedPreferencesList[i].index = i;
+        },
+      );
+      await fetchForecast(sharedPreferencesList[i].forecastUrl.toString()).then(
+        (weather) {
+          setState(() {
+            weather;
+          });
 
-        // location.short_name = name.toString().substring(
-        //       0,
-        //       name?.indexOf(','),
-        //     );
-        sharedPreferencesList[i].icon =
-            weatherHourly.properties?.periods?.first.icon;
-        sharedPreferencesList[i].shortForecast =
-            weatherHourly.properties?.periods?.first.shortForecast;
-        sharedPreferencesList[i].temperature =
-            weatherHourly.properties?.periods?.first.temperature.toString();
-        sharedPreferencesList[i].isDaytime =
-            weatherHourly.properties?.periods?.first.isDaytime;
-        // print(weatherHourly.properties?.periods?.first.isDaytime);
-        // location.forecastHourlyUrl = forecastHourlyUrl;
-        // location.forecastUrl = forecastUrl;
-        // print('ForecastUrl: $forecastUrl');
-        // print('Location ForecastUrl:${location.forecastUrl}');
-      });
-      // print(
-      //     'initSharedPreferences sharedPref:${sharedPreferencesList[i].toJson().toString()}');
+          List<Periods> list = [];
+          num length = weather.properties?.periods?.length as num;
+          for (var j = 0; j < length; j++) {
+            list.add(weather.properties!.periods![j]);
+          }
+          forecastList.add(list);
+        },
+      );
     }
   }
 
@@ -105,17 +109,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     savePreferences();
   }
 
-  // void doNothing(BuildContext context) {}
   final TextEditingController _addressController = TextEditingController();
   Weather weatherHourly = Weather();
-  Properties propertiesHourly = Properties();
-  Periods periodsHourly = Periods();
   Weather weather = Weather();
-  Properties properties = Properties();
-  Periods periods = Periods();
   Main listResults = Main();
   Office office = Office();
-  // Locations location = Locations();
   SharedPref location = SharedPref();
 
   Future<String> getCoordinates(address) async {
@@ -134,7 +132,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Future getOffice(coordinates) async {
-    print('get Office Coordinates $coordinates');
+    // print('get Office Coordinates $coordinates');
     final response = await http
         .get(Uri.parse('https://api.weather.gov/points/$coordinates'));
     // final response = await http.get(Uri.parse('http://10.0.2.2:8000/points'));
@@ -143,47 +141,16 @@ class _HomePageState extends ConsumerState<HomePage> {
     office = Office.fromJson(jsonBody);
     forecastUrl = office.properties?.forecast.toString() ?? 'null';
     forecastHourlyUrl = office.properties?.forecastHourly.toString() ?? 'null';
-    print('getOffice ForecastHourlyUrl: $forecastHourlyUrl');
-    print('getOffice ForecastUrl: $forecastUrl');
+    // print('getOffice ForecastHourlyUrl: $forecastHourlyUrl');
+    // print('getOffice ForecastUrl: $forecastUrl');
 
     setState(() {
       forecastUrl;
       forecastHourlyUrl;
-      print('SetState: $forecastUrl');
+      // print('SetState: $forecastUrl');
     });
     // return {forecastHourlyUrl, forecastUrl};
     // return forecastHourlyUrl;
-  }
-
-  Future fetchHourlyForecast(url) async {
-    final response = await http.get(Uri.parse(url));
-    // final response =
-    // await http.get(Uri.parse('http://10.0.2.2:8000/forecast/hourly'));
-    var jsonBody = await convert.json.decode(response.body);
-    weatherHourly = Weather.fromJson(jsonBody);
-    propertiesHourly = Properties.fromJson(jsonBody);
-    periodsHourly = Periods.fromJson(jsonBody);
-    setState(() {
-      weatherHourly;
-      propertiesHourly;
-      periodsHourly;
-    });
-    // return weatherHourly;
-  }
-
-  Future fetchForecast(url) async {
-    final response = await http.get(Uri.parse(url));
-    // final response = await http.get(Uri.parse('http://10.0.2.2:8000/forecast'));
-    var jsonBody = convert.json.decode(response.body);
-
-    weather = Weather.fromJson(jsonBody);
-    properties = Properties.fromJson(jsonBody);
-    periods = Periods.fromJson(jsonBody);
-    setState(() {
-      weather;
-      properties;
-      periods;
-    });
   }
 
   Future findLocation(address) {
@@ -209,7 +176,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
-                // textAlign: TextAlign.center,
                 decoration: InputDecoration(
                   isDense: true,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -234,7 +200,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                     clear();
                     findLocation(_addressController).then(
                       (_) => fetchHourlyForecast(forecastHourlyUrl).then(
-                        (_) {
+                        (weatherHourly) {
+                          setState(() {
+                            weatherHourly;
+                          });
                           var name =
                               listResults.results?.first.formatted_address;
 
@@ -253,14 +222,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                           location.forecastUrl = forecastUrl;
                           location.isDaytime =
                               weather.properties?.periods?.first.isDaytime;
-                          print('ForecastUrl: $forecastUrl');
-                          print('Location ForecastUrl:${location.forecastUrl}');
                         },
                       ).then(
                         (_) {
-                          print('loop');
                           loadPreferences();
-                          print('SharedList: $sharedPreferencesList');
                           if (sharedPreferencesList.isEmpty) {
                             addLocationValue(
                               SharedPref(
@@ -279,9 +244,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                           for (var i = 0;
                               i < sharedPreferencesList.length;
                               i++) {
-                            print(
-                                'List: ${sharedPreferencesList[i].toJson().toString()}');
-                            print(location.short_name);
                             if (sharedPreferencesList[i]
                                 .toJson()
                                 .containsValue(location.short_name)) {
@@ -290,7 +252,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                               inList = false;
                             }
                           }
-                          print(inList);
                           if (inList == false) {
                             addLocationValue(
                               SharedPref(
@@ -307,36 +268,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                         },
                       ),
                     );
-                    setState(() {});
-                    print('onSubmitted coordinates: $coordinates');
-                    print('onSubmitted forecastUrl: $forecastUrl');
-                    print('onSubmitted forecastHourlyUrl: $forecastHourlyUrl');
-                    //
                   }
                 },
               ),
             ),
-            // TextButton(
-            //   onPressed: () => Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: ((context) => WeatherPage(
-            //                 // title: sharedPreferencesList.first.short_name.toString()
-            //                 title: sharedPreferencesList.first.short_name
-            //                     .toString(),
-            //               )))),
-            //   child: const Text('WeatherPage'),
-            // ),
-            // TextButton(
-            //     onPressed: () {
-            //       setState(() {
-            //         sharedPreferencesList = [];
-            //         savePreferences();
-            //         loadPreferences();
-            //         print(sharedPreferencesList);
-            //       });
-            //     },
-            //     child: const Text('Erase List')),
             ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
@@ -357,7 +292,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                       key: const ValueKey(0),
                       endActionPane: ActionPane(
                         motion: const ScrollMotion(),
-                        // dismissible: DismissiblePane(onDismissed: () {}),
                         children: [
                           SlidableAction(
                             onPressed: (BuildContext context) {
@@ -421,7 +355,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           style: const TextStyle(fontSize: 20),
                                         ),
                                       ),
-                                      // const Text(''),
                                       Padding(
                                         padding: const EdgeInsets.all(4.0),
                                         child: CircleAvatar(

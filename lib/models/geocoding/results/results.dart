@@ -1,8 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:national_weather/models/geocoding/geometry/geometry.dart';
 
-import '../address/address.dart';
-
 part 'results.g.dart';
 
 @JsonSerializable()

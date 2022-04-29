@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:national_weather/Widgets/isDaytime.dart';
 
 class GlassMorphism extends ConsumerWidget {
   final double blur;
@@ -17,8 +16,6 @@ class GlassMorphism extends ConsumerWidget {
   }) : super(key: key);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // bool isDaytime = ref.watch(isDaytimeProvider);
-    print('Glass: $isDaytime');
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
