@@ -1,10 +1,7 @@
 import 'dart:convert' as convert;
-import 'dart:developer';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:national_weather/Widgets/glass.dart';
 import 'package:national_weather/models/geocoding/main/main.dart';
@@ -46,6 +43,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   Future initSharedPreferences() async {
     sharedPreferencesInstance = await SharedPreferences.getInstance();
     await loadPreferences();
+    print(sharedPreferencesList.last.forecastUrl);
+    print(sharedPreferencesList.last.short_name);
     for (var i = 0; i < sharedPreferencesList.length; i++) {
       await fetchHourlyForecast(
         sharedPreferencesList[i].forecastHourlyUrl.toString(),
@@ -116,48 +115,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   Office office = Office();
   SharedPref location = SharedPref();
 
-  Future<String> getCoordinates(address) async {
-    var GEOCODING = dotenv.env["GEOCODING"];
-    final response = await http.get(Uri.parse(
-        'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$GEOCODING'));
-    var jsonBody = await convert.json.decode(response.body);
-    listResults = Main.fromJson(jsonBody);
-    var lat = listResults.results?.first.geometry?.location?.lat.toString();
-    var lng = listResults.results?.first.geometry?.location?.lng.toString();
-    setState(() {
-      listResults;
-      coordinates = '$lat,$lng';
-    });
-    return coordinates;
-  }
-
-  Future getOffice(coordinates) async {
-    // print('get Office Coordinates $coordinates');
-    final response = await http
-        .get(Uri.parse('https://api.weather.gov/points/$coordinates'));
-    // final response = await http.get(Uri.parse('http://10.0.2.2:8000/points'));
-    var jsonBody = await convert.json.decode(response.body);
-    // log(jsonBody.toString());
-    office = Office.fromJson(jsonBody);
-    forecastUrl = office.properties?.forecast.toString() ?? 'null';
-    forecastHourlyUrl = office.properties?.forecastHourly.toString() ?? 'null';
-    // print('getOffice ForecastHourlyUrl: $forecastHourlyUrl');
-    // print('getOffice ForecastUrl: $forecastUrl');
-
-    setState(() {
-      forecastUrl;
-      forecastHourlyUrl;
-      // print('SetState: $forecastUrl');
-    });
-    // return {forecastHourlyUrl, forecastUrl};
-    // return forecastHourlyUrl;
-  }
-
-  Future findLocation(address) {
-    return getCoordinates(address)
-        .then((coordinates) => getOffice(coordinates));
-  }
-
   void clear() {
     _addressController.clear();
     setState(() {});
@@ -198,12 +155,19 @@ class _HomePageState extends ConsumerState<HomePage> {
                 onSubmitted: (_addressController) {
                   if (_addressController.isNotEmpty) {
                     clear();
-                    findLocation(_addressController).then(
-                      (_) => fetchHourlyForecast(forecastHourlyUrl).then(
-                        (weatherHourly) {
+                    getCoordinates(_addressController)
+                        .then((listResults) {
                           setState(() {
-                            weatherHourly;
+                            print(
+                                ".then: ${listResults.results?.first.formatted_address}");
+                            listResults;
                           });
+                          var lat = listResults
+                              .results?.first.geometry?.location?.lat
+                              .toString();
+                          var lng = listResults
+                              .results?.first.geometry?.location?.lng
+                              .toString();
                           var name =
                               listResults.results?.first.formatted_address;
 
@@ -211,63 +175,102 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 0,
                                 name?.indexOf(','),
                               );
-                          location.icon =
-                              weatherHourly.properties?.periods?.first.icon;
-                          location.shortForecast = weatherHourly
-                              .properties?.periods?.first.shortForecast;
-                          location.temperature = weatherHourly
-                              .properties?.periods?.first.temperature
-                              .toString();
-                          location.forecastHourlyUrl = forecastHourlyUrl;
-                          location.forecastUrl = forecastUrl;
-                          location.isDaytime =
-                              weather.properties?.periods?.first.isDaytime;
-                        },
-                      ).then(
-                        (_) {
-                          loadPreferences();
-                          if (sharedPreferencesList.isEmpty) {
-                            addLocationValue(
-                              SharedPref(
-                                icon: location.icon,
-                                short_name: location.short_name,
-                                shortForecast: location.shortForecast,
-                                temperature: location.temperature,
-                                forecastHourlyUrl: location.forecastHourlyUrl,
-                                forecastUrl: location.forecastUrl,
-                                isDaytime: location.isDaytime,
+                          return coordinates = '$lat,$lng';
+                        })
+                        .then(
+                          (coordinates) => getOffice(coordinates).then(
+                            (office) {
+                              forecastUrl =
+                                  office.properties?.forecast.toString() ??
+                                      'null';
+                              forecastHourlyUrl = office
+                                      .properties?.forecastHourly
+                                      .toString() ??
+                                  'null';
+                            },
+                          ),
+                        )
+                        .then(
+                          (_) => fetchHourlyForecast(forecastHourlyUrl)
+                              .then(
+                                (weatherHourly) {
+                                  setState(() {
+                                    weatherHourly;
+                                  });
+                                  print(
+                                      "after fetchHourlyForecast: ${listResults.results?.first.formatted_address}");
+                                  // var name =
+                                  //     listResults.results?.first.formatted_address;
+
+                                  // location.short_name = name.toString().substring(
+                                  //       0,
+                                  //       name?.indexOf(','),
+                                  //     );
+                                  location.icon = weatherHourly
+                                      .properties?.periods?.first.icon;
+                                  location.shortForecast = weatherHourly
+                                      .properties?.periods?.first.shortForecast;
+                                  location.temperature = weatherHourly
+                                      .properties?.periods?.first.temperature
+                                      .toString();
+                                  location.forecastHourlyUrl =
+                                      forecastHourlyUrl;
+                                  location.forecastUrl = forecastUrl;
+                                  location.isDaytime = weather
+                                      .properties?.periods?.first.isDaytime;
+                                },
+                              )
+                              .then((_) => fetchForecast(location.forecastUrl))
+                              .then(
+                                (_) {
+                                  setState(() {
+                                    weather;
+                                  });
+                                  loadPreferences();
+                                  if (sharedPreferencesList.isEmpty) {
+                                    addLocationValue(
+                                      SharedPref(
+                                        icon: location.icon,
+                                        short_name: location.short_name,
+                                        shortForecast: location.shortForecast,
+                                        temperature: location.temperature,
+                                        forecastHourlyUrl:
+                                            location.forecastHourlyUrl,
+                                        forecastUrl: location.forecastUrl,
+                                        isDaytime: location.isDaytime,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  bool inList = false;
+                                  for (var i = 0;
+                                      i < sharedPreferencesList.length;
+                                      i++) {
+                                    if (sharedPreferencesList[i]
+                                        .toJson()
+                                        .containsValue(location.short_name)) {
+                                      inList = true;
+                                    } else {
+                                      inList = false;
+                                    }
+                                  }
+                                  if (inList == false) {
+                                    addLocationValue(
+                                      SharedPref(
+                                        icon: location.icon,
+                                        short_name: location.short_name,
+                                        shortForecast: location.shortForecast,
+                                        temperature: location.temperature,
+                                        forecastHourlyUrl:
+                                            location.forecastHourlyUrl,
+                                        forecastUrl: location.forecastUrl,
+                                        isDaytime: location.isDaytime,
+                                      ),
+                                    );
+                                  }
+                                },
                               ),
-                            );
-                            return;
-                          }
-                          bool inList = false;
-                          for (var i = 0;
-                              i < sharedPreferencesList.length;
-                              i++) {
-                            if (sharedPreferencesList[i]
-                                .toJson()
-                                .containsValue(location.short_name)) {
-                              inList = true;
-                            } else {
-                              inList = false;
-                            }
-                          }
-                          if (inList == false) {
-                            addLocationValue(
-                              SharedPref(
-                                icon: location.icon,
-                                short_name: location.short_name,
-                                shortForecast: location.shortForecast,
-                                temperature: location.temperature,
-                                forecastHourlyUrl: location.forecastHourlyUrl,
-                                forecastUrl: location.forecastUrl,
-                                isDaytime: location.isDaytime,
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    );
+                        );
                   }
                 },
               ),
@@ -384,7 +387,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                     child: RichText(
                       text: TextSpan(
                         children: [
-                          const TextSpan(text: 'Learn more about the '),
+                          const TextSpan(
+                            text: 'Learn more about the ',
+                            style: TextStyle(color: Colors.white),
+                          ),
                           TextSpan(
                             text: 'National Weather Service',
                             style: const TextStyle(
@@ -409,7 +415,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                     child: RichText(
                       text: TextSpan(
                         children: [
-                          const TextSpan(text: 'And the '),
+                          const TextSpan(
+                            text: 'And the ',
+                            style: TextStyle(color: Colors.white),
+                          ),
                           TextSpan(
                             text:
                                 'National Oceanic & Atmospheric Administraion',

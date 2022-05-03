@@ -85,47 +85,45 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                       ),
                     ),
                   ),
-                  Flexible(
+                  SizedBox(
+                    height: 125,
+                    width: MediaQuery.of(context).size.width,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        height: 125,
-                        width: MediaQuery.of(context).size.width,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 10,
-                          itemBuilder: (context, index) => Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: GlassMorphism(
-                              isDaytime:
-                                  hourlyList[listIndex ?? 0][index].isDaytime,
-                              blur: blur,
-                              opacity: opacity,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      DateFormat.j().format(DateTime.parse(
-                                          (hourlyList[listIndex ?? 0][index]
-                                              .startTime
-                                              .toString()
-                                              .substring(0, 19)))),
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 10,
+                        itemBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: GlassMorphism(
+                            isDaytime:
+                                hourlyList[listIndex ?? 0][index].isDaytime,
+                            blur: blur,
+                            opacity: opacity,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    DateFormat.j().format(DateTime.parse(
+                                        (hourlyList[listIndex ?? 0][index]
+                                            .startTime
+                                            .toString()
+                                            .substring(0, 19)))),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                          hourlyList[listIndex ?? 0][index]
+                                              .icon
+                                              .toString()),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                            hourlyList[listIndex ?? 0][index]
-                                                .icon
-                                                .toString()),
-                                      ),
-                                    ),
-                                    Text(
-                                      '${hourlyList[listIndex ?? 0][index].temperature.toString()}°',
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  Text(
+                                    '${hourlyList[listIndex ?? 0][index].temperature.toString()}°',
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -178,17 +176,19 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: ReadMoreText(
-                                    forecastList[listIndex ?? 0][index]
-                                        .detailedForecast
-                                        .toString(),
+                                    "${forecastList[listIndex ?? 0][index].detailedForecast.toString()}",
+                                    style: const TextStyle(color: Colors.white),
                                     trimLines: 3,
                                     trimMode: TrimMode.Line,
                                     trimCollapsedText: 'Read More',
                                     trimExpandedText: 'Read Less',
-                                    lessStyle:
-                                        const TextStyle(color: Colors.white),
-                                    moreStyle:
-                                        const TextStyle(color: Colors.white),
+                                    lessStyle: const TextStyle(
+                                        color: Colors.blue,
+                                        fontWeight: FontWeight.bold),
+                                    moreStyle: const TextStyle(
+                                        color: Colors.blue,
+                                        fontWeight: FontWeight.bold),
+                                    colorClickableText: Colors.pink,
                                   ),
                                 ),
                               )
