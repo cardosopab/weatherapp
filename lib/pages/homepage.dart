@@ -276,6 +276,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
             ),
             ListView.builder(
+              reverse: true,
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemCount: sharedPreferencesList.length,
