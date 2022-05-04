@@ -26,14 +26,15 @@ class MyApp extends StatelessWidget {
       scrollBehavior: MyCustomScrollBehavior(),
       debugShowCheckedModeBanner: false,
       title: 'National Weather',
-      theme: ThemeData.dark(),
-      // theme: ThemeData(
-      //   textTheme: ThemeData.dark().textTheme.copyWith(
-      //         bodyText1: const TextStyle(color: Colors.white),
-      //         bodyText2: const TextStyle(color: Colors.white),
-      //       ),
-      // ),
-      // darkTheme: ThemeData.dark(),
+      // theme: ThemeData.dark(),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        fontFamily: 'Roboto',
+        // textTheme: ThemeData.dark().textTheme.copyWith(
+        //       bodyText1: const TextStyle(color: Colors.white),
+        //       bodyText2: const TextStyle(color: Colors.white),
+        //     ),
+      ),
       home: const HomePage(title: 'National Weather'),
     );
   }

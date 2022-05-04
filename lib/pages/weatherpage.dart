@@ -176,17 +176,19 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: ReadMoreText(
-                                    "${forecastList[listIndex ?? 0][index].detailedForecast.toString()}",
+                                    forecastList[listIndex ?? 0][index]
+                                        .detailedForecast
+                                        .toString(),
                                     style: const TextStyle(color: Colors.white),
                                     trimLines: 3,
                                     trimMode: TrimMode.Line,
                                     trimCollapsedText: 'Read More',
                                     trimExpandedText: 'Read Less',
                                     lessStyle: const TextStyle(
-                                        color: Colors.blue,
+                                        color: Colors.white,
                                         fontWeight: FontWeight.bold),
                                     moreStyle: const TextStyle(
-                                        color: Colors.blue,
+                                        color: Colors.white,
                                         fontWeight: FontWeight.bold),
                                     colorClickableText: Colors.pink,
                                   ),

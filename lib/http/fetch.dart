@@ -8,18 +8,26 @@ import '../models/office/office.dart';
 
 Future<Weather> fetchForecast(url) async {
   final response = await http.get(Uri.parse(url));
-  var jsonBody = convert.json.decode(response.body);
+  if (response.statusCode == 200) {
+    var jsonBody = convert.json.decode(response.body);
 
-  Weather weather = Weather.fromJson(jsonBody);
-  return weather;
+    Weather weather = Weather.fromJson(jsonBody);
+    return weather;
+  } else {
+    throw "fetchForecast Status !200: ${response.statusCode}";
+  }
 }
 
 Future<Weather> fetchHourlyForecast(url) async {
   final response = await http.get(Uri.parse(url));
-  var jsonBody = convert.json.decode(response.body);
+  if (response.statusCode == 200) {
+    var jsonBody = convert.json.decode(response.body);
 
-  Weather weatherHourly = Weather.fromJson(jsonBody);
-  return weatherHourly;
+    Weather weatherHourly = Weather.fromJson(jsonBody);
+    return weatherHourly;
+  } else {
+    throw "fetchHourlyForecast Status !200: ${response.statusCode}";
+  }
 }
 
 Future<Main> getCoordinates(address) async {
@@ -27,18 +35,26 @@ Future<Main> getCoordinates(address) async {
   var GEOCODING = dotenv.env["GEOCODING"];
   final response = await http.get(Uri.parse(
       'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$GEOCODING'));
-  var jsonBody = await convert.json.decode(response.body);
-  Main listResults = Main.fromJson(jsonBody);
-  print("getCoordinates: ${listResults.results?.first.formatted_address}");
-  return listResults;
+  if (response.statusCode == 200) {
+    var jsonBody = await convert.json.decode(response.body);
+    Main listResults = Main.fromJson(jsonBody);
+    print("getCoordinates: ${listResults.results?.first.formatted_address}");
+    return listResults;
+  } else {
+    throw "getCoordinates Status !200: ${response.statusCode}";
+  }
 }
 
 Future<Office> getOffice(coordinates) async {
   final response =
       await http.get(Uri.parse('https://api.weather.gov/points/$coordinates'));
-  var jsonBody = await convert.json.decode(response.body);
-  Office office = Office.fromJson(jsonBody);
-  return office;
+  if (response.statusCode == 200) {
+    var jsonBody = await convert.json.decode(response.body);
+    Office office = Office.fromJson(jsonBody);
+    return office;
+  } else {
+    throw "getOffice Status !200: ${response.statusCode}";
+  }
 }
 
 // Future findLocation(address) {
@@ -57,3 +73,4 @@ Future<Office> getOffice(coordinates) async {
 //     ),
 //   );
 // }
+
