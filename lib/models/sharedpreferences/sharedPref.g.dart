@@ -7,24 +7,24 @@ part of 'sharedPref.dart';
 // **************************************************************************
 
 SharedPref _$SharedPrefFromJson(Map<String, dynamic> json) => SharedPref(
-      short_name: json['short_name'] as String?,
-      shortForecast: json['shortForecast'] as String?,
       icon: json['icon'] as String?,
-      temperature: json['temperature'] as String?,
-      forecastHourlyUrl: json['forecastHourlyUrl'] as String?,
-      forecastUrl: json['forecastUrl'] as String?,
-      isDaytime: json['isDaytime'] as bool?,
-      index: json['index'] as int?,
+      name: json['name'] as String?,
+      description: json['description'] as String?,
+      main: json['main'] as String?,
+      humidity: json['humidity'] as String?,
+      temp: json['temp'] as String?,
+      moon_phase: json['moon_phase'] as String?,
+      coordinates: json['coordinates'] as String?,
     );
 
 Map<String, dynamic> _$SharedPrefToJson(SharedPref instance) =>
     <String, dynamic>{
       'icon': instance.icon,
-      'short_name': instance.short_name,
-      'shortForecast': instance.shortForecast,
-      'temperature': instance.temperature,
-      'forecastHourlyUrl': instance.forecastHourlyUrl,
-      'forecastUrl': instance.forecastUrl,
-      'isDaytime': instance.isDaytime,
-      'index': instance.index,
+      'name': instance.name,
+      'description': instance.description,
+      'main': instance.main,
+      'humidity': instance.humidity,
+      'temp': instance.temp,
+      'moon_phase': instance.moon_phase,
+      'coordinates': instance.coordinates,
     };

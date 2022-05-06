@@ -47,4 +47,4 @@ app.*.map.json
 
 
 # API
-.env
+dotenv

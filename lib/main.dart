@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/homepage.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "dotenv");
   if (kIsWeb) {
     runApp(const ProviderScope(
         child:

@@ -1,18 +1,19 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:national_weather/models/nationalweather/properties/properties.dart';
 
-part 'models.g.dart';
+part 'weather.g.dart';
 
 @JsonSerializable()
 class Weather {
-  String? type;
-  Properties? properties;
-  // List<Weather>? properties;
+  String main, description, icon;
+  double id;
+
+  Weather? weather;
 
   Weather({
-    this.type,
-    // this.properties,
-    this.properties,
+    required this.main,
+    required this.description,
+    required this.icon,
+    required this.id,
   });
   factory Weather.fromJson(Map<String, dynamic> json) =>
       _$WeatherFromJson(json);

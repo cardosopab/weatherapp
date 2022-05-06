@@ -1,26 +1,12 @@
-import 'dart:convert' as convert;
 import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/material.dart';
 import 'package:national_weather/Widgets/glass.dart';
 import 'package:national_weather/models/geocoding/main/main.dart';
-import 'package:national_weather/models/office/office.dart';
 import 'package:national_weather/models/sharedpreferences/sharedPref.dart';
-import 'package:national_weather/pages/weatherpage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../http/fetch.dart';
-import '../models/nationalweather/periods/periods.dart';
-import '../models/nationalweather/weather/models.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-String coordinates = '';
-String forecastUrl = '';
-String forecastHourlyUrl = '';
-List<List<Periods>> hourlyList = [];
-List<List<Periods>> forecastList = [];
-final hourlyListProvider = StateProvider((_) => hourlyList);
-final forecastListProvider = StateProvider((_) => forecastList);
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -32,90 +18,18 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  late SharedPreferences sharedPreferencesInstance;
-  List<SharedPref> sharedPreferencesList = <SharedPref>[];
   @override
   void initState() {
     super.initState();
     initSharedPreferences();
   }
 
-  Future initSharedPreferences() async {
-    sharedPreferencesInstance = await SharedPreferences.getInstance();
-    await loadPreferences();
-    // print("Lenght of list: ${sharedPreferencesList.length}");
-    // print("Last URL: ${sharedPreferencesList.last.forecastUrl}");
-    // print("Last Name: ${sharedPreferencesList.last.short_name}");
-    for (var i = 0; i < sharedPreferencesList.length; i++) {
-      await fetchHourlyForecast(
-        sharedPreferencesList[i].forecastHourlyUrl.toString(),
-      ).then(
-        (weatherHourly) {
-          print("Loop Name: ${sharedPreferencesList[i].short_name}");
-          setState(() {
-            weatherHourly;
-          });
-          List<Periods> list = [];
-          num length = weatherHourly.properties?.periods?.length as num;
-          for (var k = 0; k < length; k++) {
-            list.add(weatherHourly.properties!.periods![k]);
-          }
-          hourlyList.add(list);
-          sharedPreferencesList[i].icon =
-              weatherHourly.properties?.periods?.first.icon;
-          sharedPreferencesList[i].shortForecast =
-              weatherHourly.properties?.periods?.first.shortForecast;
-          sharedPreferencesList[i].temperature =
-              weatherHourly.properties?.periods?.first.temperature.toString();
-          sharedPreferencesList[i].isDaytime =
-              weatherHourly.properties?.periods?.first.isDaytime;
-          sharedPreferencesList[i].index = i;
-        },
-      );
-      await fetchForecast(sharedPreferencesList[i].forecastUrl.toString()).then(
-        (weather) {
-          setState(() {
-            weather;
-          });
-
-          List<Periods> list = [];
-          num length = weather.properties?.periods?.length as num;
-          for (var j = 0; j < length; j++) {
-            list.add(weather.properties!.periods![j]);
-          }
-          forecastList.add(list);
-        },
-      );
-    }
-  }
-
-  void savePreferences() {
-    List<String> spList = sharedPreferencesList
-        .map((item) => convert.jsonEncode(item.toJson()))
-        .toList();
-    sharedPreferencesInstance.setStringList('location', spList);
-  }
-
-  Future loadPreferences() async {
-    List<String>? spList = sharedPreferencesInstance.getStringList('location');
-    sharedPreferencesList = spList
-            ?.map((e) => SharedPref.fromJson(convert.jsonDecode(e)))
-            .toList() ??
-        [];
-    setState(() {});
-  }
-
-  void addLocationValue(SharedPref value) {
-    sharedPreferencesList.add(value);
-    savePreferences();
-  }
-
   final TextEditingController _addressController = TextEditingController();
-  Weather weatherHourly = Weather();
-  Weather weather = Weather();
+  // Weather weatherHourly = Weather();
+  // Weather weather = Weather();
   Main listResults = Main();
-  Office office = Office();
-  SharedPref location = SharedPref();
+  // Office office = Office();
+  // SharedPref location = SharedPref();
 
   void clear() {
     _addressController.clear();
@@ -164,198 +78,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                 onSubmitted: (_addressController) {
                   if (_addressController.isNotEmpty) {
                     clear();
-                    getCoordinates(_addressController)
-                        .then(
-                          (listResults) {
-                            setState(() {
-                              print(
-                                  ".then: ${listResults.results?.first.formatted_address}");
-                              listResults;
-                            });
-                            var lat = listResults
-                                .results?.first.geometry?.location?.lat
-                                .toString();
-                            var lng = listResults
-                                .results?.first.geometry?.location?.lng
-                                .toString();
-                            var name =
-                                listResults.results?.first.formatted_address;
-
-                            location.short_name = name.toString().substring(
-                                  0,
-                                  name?.indexOf(','),
-                                );
-                            print("location.short_name: location.short_name");
-                            return coordinates = '$lat,$lng';
-                          },
-                        )
-                        .then(
-                          (coordinates) => getOffice(coordinates).then(
-                            (office) {
-                              forecastUrl =
-                                  office.properties?.forecast.toString() ??
-                                      'null';
-                              forecastHourlyUrl = office
-                                      .properties?.forecastHourly
-                                      .toString() ??
-                                  'null';
-                              print("ForecastUrl: ${forecastUrl}");
-                              print("ForecastHourly: ${forecastHourlyUrl}");
-                            },
-                          ),
-                        )
-                        .then(
-                          (_) {
-                            print(forecastHourlyUrl);
-                            return fetchHourlyForecast(
-                                    forecastHourlyUrl.toString())
-                                .then(
-                              (weatherHourly) {
-                                setState(
-                                  () {
-                                    weatherHourly;
-                                    print(
-                                        "weatherHourly.type: ${weatherHourly.type}");
-                                  },
-                                );
-                                // print(
-                                //     "after fetchHourlyForecast: ${listResults.results?.first.formatted_address}");
-                                // var name =
-                                //     listResults.results?.first.formatted_address;
-
-                                // location.short_name = name.toString().substring(
-                                //       0,
-                                //       name?.indexOf(','),
-                                //     );
-                                location.icon = weatherHourly
-                                    .properties?.periods?.first.icon;
-                                location.shortForecast = weatherHourly
-                                    .properties?.periods?.first.shortForecast;
-                                location.temperature = weatherHourly
-                                    .properties?.periods?.first.temperature
-                                    .toString();
-                                location.forecastHourlyUrl = forecastHourlyUrl;
-                                location.forecastUrl = forecastUrl;
-                                location.isDaytime = weather
-                                    .properties?.periods?.first.isDaytime;
-                                List<Periods> list = [];
-                                num length = weatherHourly
-                                    .properties?.periods?.length as num;
-                                for (var k = 0; k < length; k++) {
-                                  list.add(
-                                      weatherHourly.properties!.periods![k]);
-                                }
-                                hourlyList.add(list);
-                              },
-                            ).then(
-                              (_) {
-                                loadPreferences();
-                                if (sharedPreferencesList.isEmpty) {
-                                  addLocationValue(
-                                    SharedPref(
-                                      icon: location.icon,
-                                      short_name: location.short_name,
-                                      shortForecast: location.shortForecast,
-                                      temperature: location.temperature,
-                                      forecastHourlyUrl:
-                                          location.forecastHourlyUrl,
-                                      forecastUrl: location.forecastUrl,
-                                      isDaytime: location.isDaytime,
-                                    ),
-                                  );
-                                  return;
-                                }
-                                bool inList = false;
-                                for (var i = 0;
-                                    i < sharedPreferencesList.length;
-                                    i++) {
-                                  if (sharedPreferencesList[i]
-                                      .toJson()
-                                      .containsValue(location.short_name)) {
-                                    inList = true;
-                                  } else {
-                                    inList = false;
-                                  }
-                                }
-                                if (inList == false) {
-                                  addLocationValue(
-                                    SharedPref(
-                                        icon: location.icon,
-                                        short_name: location.short_name,
-                                        shortForecast: location.shortForecast,
-                                        temperature: location.temperature,
-                                        forecastHourlyUrl:
-                                            location.forecastHourlyUrl,
-                                        forecastUrl: location.forecastUrl,
-                                        isDaytime: location.isDaytime,
-                                        index:
-                                            sharedPreferencesList.length + 1),
-                                  );
-                                }
-                                for (var i = 0;
-                                    i < sharedPreferencesList.length;
-                                    i++) {
-                                  fetchHourlyForecast(
-                                    sharedPreferencesList[i]
-                                        .forecastHourlyUrl
-                                        .toString(),
-                                  ).then(
-                                    (weatherHourly) {
-                                      print(
-                                          "Loop Name: ${sharedPreferencesList[i].short_name}");
-                                      setState(() {
-                                        weatherHourly;
-                                      });
-                                      List<Periods> list = [];
-                                      num length = weatherHourly
-                                          .properties?.periods?.length as num;
-                                      for (var k = 0; k < length; k++) {
-                                        list.add(weatherHourly
-                                            .properties!.periods![k]);
-                                      }
-                                      hourlyList.add(list);
-                                      sharedPreferencesList[i].icon =
-                                          weatherHourly
-                                              .properties?.periods?.first.icon;
-                                      sharedPreferencesList[i].shortForecast =
-                                          weatherHourly.properties?.periods
-                                              ?.first.shortForecast;
-                                      sharedPreferencesList[i].temperature =
-                                          weatherHourly.properties?.periods
-                                              ?.first.temperature
-                                              .toString();
-                                      sharedPreferencesList[i].isDaytime =
-                                          weatherHourly.properties?.periods
-                                              ?.first.isDaytime;
-                                      sharedPreferencesList[i].index = i;
-                                    },
-                                  );
-                                  fetchForecast(sharedPreferencesList[i]
-                                          .forecastUrl
-                                          .toString())
-                                      .then(
-                                    (weather) {
-                                      setState(
-                                        () {
-                                          weather;
-                                        },
-                                      );
-
-                                      List<Periods> list = [];
-                                      num length = weather
-                                          .properties?.periods?.length as num;
-                                      for (var j = 0; j < length; j++) {
-                                        list.add(
-                                            weather.properties!.periods![j]);
-                                      }
-                                      forecastList.add(list);
-                                    },
-                                  );
-                                }
-                              },
-                            );
-                          },
-                        );
+                    findLocation(_addressController);
+                    setState(() {});
                   }
                 },
               ),
@@ -371,11 +95,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                   padding: const EdgeInsets.all(8.0),
                   child: GestureDetector(
                     onTap: (() {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: ((context) =>
-                                  WeatherPage(sharedPref: sharedPref))));
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: ((context) =>
+                      //         WeatherPage(sharedPref: sharedPref)),
+                      //   ),
+                      // );
                     }),
                     child: Slidable(
                       key: const ValueKey(0),
@@ -408,8 +134,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                         ),
                         child: GlassMorphism(
-                          isDaytime: weatherHourly
-                              .properties?.periods?.first.isDaytime,
+                          isDaytime: true,
                           blur: 2,
                           opacity: .2,
                           child: Padding(
@@ -422,14 +147,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       Padding(
                                         padding: const EdgeInsets.all(4.0),
                                         child: Text(
-                                          sharedPref.short_name.toString(),
+                                          sharedPref.name.toString(),
                                           style: const TextStyle(fontSize: 20),
                                         ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.all(4.0),
-                                        child: Text(sharedPref.shortForecast
-                                            .toString()),
+                                        child: Text(sharedPref.main.toString()),
                                       )
                                     ],
                                   ),
@@ -440,17 +164,24 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       Padding(
                                         padding: const EdgeInsets.all(4.0),
                                         child: Text(
-                                          '${sharedPref.temperature}°',
+                                          '${sharedPref.temp}°',
                                           style: const TextStyle(fontSize: 20),
                                         ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.all(4.0),
-                                        child: CircleAvatar(
-                                          backgroundImage: NetworkImage(
-                                              sharedPref.icon.toString()),
+                                        child: Text(
+                                          '${sharedPref.humidity}%',
+                                          style: const TextStyle(fontSize: 20),
                                         ),
                                       ),
+                                      // Padding(
+                                      //   padding: const EdgeInsets.all(4.0),
+                                      //   child: CircleAvatar(
+                                      //     backgroundImage: NetworkImage(
+                                      //         sharedPref.icon.toString()),
+                                      //   ),
+                                      // ),
                                     ],
                                   ),
                                 ),
