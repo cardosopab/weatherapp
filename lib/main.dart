@@ -1,18 +1,28 @@
 import 'dart:ui';
-
+import 'package:timezone/data/latest.dart' as tz;
+// import 'package:timezone/browser.dart' as tz;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/homepage.dart';
 
+var unitBool = true;
 void main() async {
   await dotenv.load(fileName: "dotenv");
+
   if (kIsWeb) {
+    // Future<void> setup() async {
+    //   await tz.initializeTimeZone();
+    //   var detroit = tz.getLocation('America/Detroit');
+    //   var now = tz.TZDateTime.now(detroit);
+    // }
+
     runApp(const ProviderScope(
         child:
             Center(child: SizedBox(width: 400, height: 800, child: MyApp()))));
   } else {
+    tz.initializeTimeZones();
     runApp(const ProviderScope(child: MyApp()));
   }
 }
@@ -26,7 +36,6 @@ class MyApp extends StatelessWidget {
       scrollBehavior: MyCustomScrollBehavior(),
       debugShowCheckedModeBanner: false,
       title: 'National Weather',
-      // theme: ThemeData.dark(),
       theme: ThemeData(
         brightness: Brightness.dark,
         fontFamily: 'Roboto',
@@ -35,7 +44,7 @@ class MyApp extends StatelessWidget {
         //       bodyText2: const TextStyle(color: Colors.white),
         //     ),
       ),
-      home: const HomePage(title: 'National Weather'),
+      home: const HomePage(),
     );
   }
 }

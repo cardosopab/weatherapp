@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class GlassMorphism extends ConsumerWidget {
+class GlassMorphism extends StatelessWidget {
   final double blur;
   final double opacity;
   final bool? isDaytime;
@@ -15,7 +15,7 @@ class GlassMorphism extends ConsumerWidget {
     required this.isDaytime,
   }) : super(key: key);
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
@@ -23,9 +23,9 @@ class GlassMorphism extends ConsumerWidget {
         child: Container(
           decoration: BoxDecoration(
             color: isDaytime == true
-                ? Colors.blue.withOpacity(opacity)
+                ? Colors.blue[500]?.withOpacity(opacity)
                 // : Colors.cyan[800]?.withOpacity(opacity),
-                : Colors.blue[800]?.withOpacity(opacity),
+                : Colors.blue[300]?.withOpacity(opacity),
             borderRadius: const BorderRadius.all(
               Radius.circular(20),
             ),

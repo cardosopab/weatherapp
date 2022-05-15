@@ -10,10 +10,13 @@ class SharedPref {
       main,
       humidity,
       temp,
+      dt,
       moon_phase,
-      coordinates;
+      coordinates,
+      timezone;
+  int? index;
 
-  // bool isDaytime;
+  bool? isDaytime;
 
   SharedPref({
     this.icon,
@@ -23,8 +26,11 @@ class SharedPref {
     this.humidity,
     this.temp,
     this.moon_phase,
-    // required this.isDaytime,
+    this.isDaytime,
     this.coordinates,
+    this.index,
+    this.dt,
+    this.timezone,
   });
   factory SharedPref.fromJson(Map<String, dynamic> json) =>
       _$SharedPrefFromJson(json);

@@ -2,18 +2,25 @@ import 'dart:convert' as convert;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:national_weather/models/nationalweather/daily/daily.dart';
+import 'package:national_weather/models/nationalweather/hourly/hourly.dart';
 import 'package:national_weather/models/nationalweather/model/models.dart';
+import 'package:national_weather/pages/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/timezone.dart';
+import '../main.dart';
 import '../models/geocoding/main/main.dart';
 import '../models/sharedpreferences/sharedPref.dart';
+// import 'package:riverpod/riverpod.dart';
 
 String coordinates = '';
 // String forecastUrl = '';
 // String forecastHourlyUrl = '';
-// List<List<Periods>> hourlyList = [];
-List<List<Model>> forecastList = [];
-// final hourlyListProvider = StateProvider((_) => hourlyList);
-final forecastListProvider = StateProvider((_) => forecastList);
+List<List<Hourly>> hourlyList = [];
+List<List<Daily>> dailyList = [];
+final hourlyListProvider = StateProvider((_) => hourlyList);
+final dailyListProvider = StateProvider((_) => dailyList);
 
 SharedPref location = SharedPref();
 late SharedPreferences sharedPreferencesInstance;
@@ -22,14 +29,14 @@ List<SharedPref> sharedPreferencesList = <SharedPref>[];
 Future<Main> getCoordinates(address) async {
   // Google Geocoding API KEY
   var GEOCODING = dotenv.env["GEOCODING"];
-  var localgeocoding = dotenv.env["localgeocoding"];
-  // final response = await http.get(Uri.parse(localgeocoding.toString()));
-  final response = await http.get(Uri.parse(
-      'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$GEOCODING'));
+  var localhost = dotenv.env["localgeocoding"].toString();
+  var url =
+      'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$GEOCODING';
+  final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
     var jsonBody = await convert.json.decode(response.body);
     Main listResults = Main.fromJson(jsonBody);
-    print("getCoordinates: ${listResults.results?.first.formatted_address}");
+    // print("getCoordinates: ${listResults.results?.first.formatted_address}");
     return listResults;
   } else {
     throw "getCoordinates Status !200: ${response.statusCode}";
@@ -37,13 +44,22 @@ Future<Main> getCoordinates(address) async {
 }
 
 Future<Model> fetchForecast(coordinates) async {
-  print(coordinates);
+  // print(coordinates);
   // openWeatherAPI
   var openWeatherAPI = dotenv.env["openWeatherAPI"];
-  var localhost = dotenv.env["localhost"];
-  // final response = await http.get(Uri.parse(localhost.toString()));
-  final response = await http.get(Uri.parse(
-      "https://api.openweathermap.org/data/2.5/onecall?$coordinates&exclude=minutely&appid=$openWeatherAPI"));
+  var localhost = dotenv.env["localhost"].toString();
+  // var units = "imperial";
+  // var units = "metric";
+  print("unitsBool: $unitBool");
+  // var bool = unitsBool;
+  var units = unitBool ? "imperial" : "metric";
+  // print("unitsBool: $unitsBool");
+  // print("units: $units");
+  var lang = "en";
+  var url =
+      "https://api.openweathermap.org/data/2.5/onecall?$coordinates&exclude=minutely&appid=$openWeatherAPI&units=$units&lang=$lang";
+
+  final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
     var jsonBody = convert.json.decode(response.body);
 
@@ -95,15 +111,56 @@ Future findLocation(address) async {
           location.icon = forecastResponse.current.weather.first.icon;
           location.description =
               forecastResponse.current.weather.first.description;
-          location.temp = forecastResponse.current.temp.toString();
+          location.temp = forecastResponse.current.temp.ceil().toString();
           location.coordinates = coordinates;
           location.humidity = forecastResponse.daily.first.humidity.toString();
           location.main = forecastResponse.current.weather.first.main;
           location.moon_phase =
               forecastResponse.daily.first.moon_phase.toString();
-
-          print("location.temp: ${location.temp}");
-          print("location.coordinates: ${location.coordinates}");
+          location.timezone = forecastResponse.timezone;
+          location.dt = currentTime(forecastResponse.current.dt.toInt(),
+              forecastResponse.timezone.toString());
+          // DateTime local = DateTime.fromMillisecondsSinceEpoch(
+          //     forecastResponse.current.dt.toInt() * 1000);
+          // print("local: $local");
+          // final locationTime =
+          //     TZDateTime.from(local, getLocation(forecastResponse.timezone));
+          // print("locationTime: $locationTime");
+          // var result;
+          // var reversed = reverseStringUsingSplit(locationTime.toString());
+          // if (reversed.contains("+")) {
+          //   var index = reversed.indexOf("+");
+          //   print("index: $index");
+          //   var string = reversed.substring(index + 1, reversed.length);
+          //   result = reverseStringUsingSplit(string);
+          //   print("result: $result");
+          // } else if (reversed.contains("-")) {
+          //   var index = reversed.indexOf("-");
+          //   print("index: $index");
+          //   var string = reversed.substring(index + 1, reversed.length);
+          //   result = reverseStringUsingSplit(string);
+          //   print("result: $result");
+          // }
+          // var locationFormat =
+          //     DateFormat("h:mm a").format(DateTime.parse(result));
+          // print("locationFormat: $locationFormat");
+          // location.dt = locationFormat;
+          // print("location.dt: ${location.dt}");
+          // hourlyList.add(forecastResponse.hourly);
+          // dailyList.add(forecastResponse.daily);
+          location.isDaytime = false;
+          if (forecastResponse.current.weather.first.icon.contains('d')) {
+            location.isDaytime = true;
+          }
+          print(location.isDaytime);
+          for (var i = 0; i < forecastResponse.hourly.length; i++) {
+            hourlyList.add(forecastResponse.hourly);
+          }
+          for (var i = 0; i < forecastResponse.daily.length; i++) {
+            dailyList.add(forecastResponse.daily);
+          }
+          // print("location.temp: ${location.temp}");
+          // print("location.coordinates: ${location.coordinates}");
 
           return location;
           // List<Model> list = [];
@@ -118,6 +175,7 @@ Future findLocation(address) async {
           print(location.coordinates);
           // loadPreferences();
           if (sharedPreferencesList.isEmpty) {
+            int zero = 0;
             addLocationValue(
               SharedPref(
                 icon: location.icon,
@@ -125,12 +183,17 @@ Future findLocation(address) async {
                 description: location.description,
                 temp: location.temp,
                 coordinates: location.coordinates,
-                // isDaytime: location.isDaytime,
+                isDaytime: location.isDaytime,
                 humidity: location.humidity,
                 main: location.main,
                 moon_phase: location.moon_phase,
+                index: zero,
+                timezone: location.timezone,
+                dt: location.dt,
               ),
             );
+            print(sharedPreferencesList.first.toJson());
+            print(sharedPreferencesList.first.index);
             return;
           }
           bool inList = false;
@@ -151,12 +214,16 @@ Future findLocation(address) async {
                 description: location.description,
                 temp: location.temp,
                 coordinates: location.coordinates,
-                // isDaytime: location.isDaytime,
+                isDaytime: location.isDaytime,
                 humidity: location.humidity,
                 main: location.main,
                 moon_phase: location.moon_phase,
+                index: sharedPreferencesList.length,
+                timezone: location.timezone,
+                dt: location.dt,
               ),
             );
+            print(sharedPreferencesList.first.toJson());
           }
           // for (var i = 0; i < sharedPreferencesList.length; i++) {
           //   fetchForecast(sharedPreferencesList[i].coordinates).then(
@@ -166,7 +233,7 @@ Future findLocation(address) async {
           //       for (var j = 0; j < length; j++) {
           //         list.add(forecastResponseproperties!.periods![j]);
           //       }
-          //       forecastList.add(list);
+          //       dailyList.add(list);
           //     },
           //   );
           // }
@@ -176,20 +243,124 @@ Future findLocation(address) async {
   );
 }
 
+// Future<int> convertLocal(time, location) async {
+//   DateTime localTime = time;
+//   final locationTime = TZDateTime.from(localTime, getLocation(location));
+//   return locationTime;
+// }
+
 Future initSharedPreferences() async {
   sharedPreferencesInstance = await SharedPreferences.getInstance();
   await loadPreferences();
-  // for (var i = 0; i < sharedPreferencesList.length; i++) {
-  //   await fetchForecast(
-  //     sharedPreferencesList[i].forecastHourlyUrl.toString(),
-  //   ).then(
-  //     (forecastResponse) {
-  //       sharedPreferencesList[i].icon = forecastResponse.current.weather.icon;
-  //       sharedPreferencesList[i].shortForecast =
-  //           forecastResponse.current.weather.main;
-  //       sharedPreferencesList[i].temperature =
-  //           forecastResponse.current.temp.toString();
-  //     },
-  //   );
-  // }
+  for (var i = 0; i < sharedPreferencesList.length; i++) {
+    await fetchForecast(
+      sharedPreferencesList[i].coordinates,
+    ).then(
+      (forecastResponse) {
+        // print(
+        //     "forecastResponse.timezone_offset: ${forecastResponse.timezone_offset}");
+        sharedPreferencesList[i].icon =
+            forecastResponse.current.weather.first.icon;
+        sharedPreferencesList[i].main =
+            forecastResponse.current.weather.first.main;
+        sharedPreferencesList[i].temp =
+            forecastResponse.current.temp.ceil().toString();
+
+        sharedPreferencesList[i].timezone = forecastResponse.timezone;
+        print(sharedPreferencesList[i].timezone);
+
+        sharedPreferencesList[i].dt = currentTime(
+            forecastResponse.current.dt.toInt(),
+            sharedPreferencesList[i].timezone.toString());
+        // DateTime local = DateTime.fromMillisecondsSinceEpoch(
+        //     forecastResponse.current.dt.toInt() * 1000);
+        // print("local: $local");
+        // final locationTime =
+        //     TZDateTime.from(local, getLocation(forecastResponse.timezone));
+        // print("locationTime: $locationTime");
+
+        // var result;
+        // var reversed = reverseStringUsingSplit(locationTime.toString());
+        // if (reversed.contains("+")) {
+        //   var index = reversed.indexOf("+");
+        //   print("index: $index");
+        //   var string = reversed.substring(index + 1, reversed.length);
+        //   result = reverseStringUsingSplit(string);
+        //   print("result: $result");
+        // } else if (reversed.contains("-")) {
+        //   var index = reversed.indexOf("-");
+        //   print("index: $index");
+        //   var string = reversed.substring(index + 1, reversed.length);
+        //   result = reverseStringUsingSplit(string);
+        //   print("result: $result");
+        // }
+        // var locationFormat =
+        //     DateFormat("h:mm a").format(DateTime.parse(result));
+        // print("locationFormat: $locationFormat");
+        // sharedPreferencesList[i].dt = locationFormat;
+        // print("sharedPreferencesList[i].dt: ${sharedPreferencesList[i].dt}");
+        hourlyList.add(forecastResponse.hourly);
+        dailyList.add(forecastResponse.daily);
+
+        sharedPreferencesList[i].isDaytime = false;
+        if (forecastResponse.current.weather.first.icon.contains('d')) {
+          sharedPreferencesList[i].isDaytime = true;
+        }
+        print("isDaytime: ${sharedPreferencesList[i].isDaytime}");
+      },
+    );
+  }
+}
+
+String reverseStringUsingSplit(String input) {
+  var chars = input.split('');
+  return chars.reversed.join();
+}
+
+String hourlyTime(int dt, String timezone) {
+  DateTime local = DateTime.fromMillisecondsSinceEpoch(dt * 1000);
+  print("local: $local");
+  final locationTime = TZDateTime.from(local, getLocation(timezone));
+  print("locationTime: $locationTime");
+  var result;
+  var reversed = reverseStringUsingSplit(locationTime.toString());
+  if (reversed.contains("+")) {
+    var index = reversed.indexOf("+");
+    print("index: $index");
+    var string = reversed.substring(index + 1, reversed.length);
+    result = reverseStringUsingSplit(string);
+    print("result: $result");
+  } else if (reversed.contains("-")) {
+    var index = reversed.indexOf("-");
+    print("index: $index");
+    var string = reversed.substring(index + 1, reversed.length);
+    result = reverseStringUsingSplit(string);
+    print("result: $result");
+  }
+  var locationFormat = DateFormat("h a").format(DateTime.parse(result));
+  return locationFormat;
+}
+
+String currentTime(int dt, String timezone) {
+  DateTime local = DateTime.fromMillisecondsSinceEpoch(dt * 1000);
+  print("local: $local");
+  final locationTime = TZDateTime.from(local, getLocation(timezone));
+  print("locationTime: $locationTime");
+  var result;
+  var reversed = reverseStringUsingSplit(locationTime.toString());
+  if (reversed.contains("+")) {
+    var index = reversed.indexOf("+");
+    print("index: $index");
+    var string = reversed.substring(index + 1, reversed.length);
+    result = reverseStringUsingSplit(string);
+    print("result: $result");
+  } else if (reversed.contains("-")) {
+    var index = reversed.indexOf("-");
+    print("index: $index");
+    var string = reversed.substring(index + 1, reversed.length);
+    result = reverseStringUsingSplit(string);
+    print("result: $result");
+  }
+  var locationFormat = DateFormat("h:mm a").format(DateTime.parse(result));
+  return locationFormat;
 }
