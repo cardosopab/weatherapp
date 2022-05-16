@@ -23,11 +23,11 @@ var day = [
   Color(0xFF1a48bc),
 ];
 var night = [
-  Color(0xFF3a4ca3),
-  Color(0xFF2143a1),
-  Color(0xFF062965),
-  Color(0xFF051d2f),
   Color(0xFF1b233e),
+  Color(0xFF051d2f),
+  Color(0xFF062965),
+  Color(0xFF2143a1),
+  Color(0xFF3a4ca3),
 ];
 
 class WeatherPage extends ConsumerStatefulWidget {
@@ -139,7 +139,7 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                    "WIND SPEED: ${hourlyList[listIndex].first.wind_speed.toString()} mph"),
+                                    "WIND SPEED: ${hourlyList[listIndex].first.wind_speed.toString()} ${tempCheck ? "MPH" : "KPH"}"),
                               ),
                               // Padding(
                               // padding: const EdgeInsets.all(8.0),

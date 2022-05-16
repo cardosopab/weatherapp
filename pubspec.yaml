@@ -99,6 +99,9 @@ flutter:
     - family: Koulen
       fonts:
         - asset: fonts/Koulen-Regular.ttf
+    - family: MyIcons
+      fonts:
+        - asset: fonts/MyIcons.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

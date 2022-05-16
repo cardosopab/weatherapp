@@ -7,7 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/homepage.dart';
 
-var unitBool = true;
+// var unitBool = true;
 void main() async {
   await dotenv.load(fileName: "dotenv");
 

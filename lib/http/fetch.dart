@@ -21,10 +21,19 @@ List<List<Hourly>> hourlyList = [];
 List<List<Daily>> dailyList = [];
 final hourlyListProvider = StateProvider((_) => hourlyList);
 final dailyListProvider = StateProvider((_) => dailyList);
+// bool unitPref = true;
+var tempCheck;
 
 SharedPref location = SharedPref();
 late SharedPreferences sharedPreferencesInstance;
 List<SharedPref> sharedPreferencesList = <SharedPref>[];
+
+void dummyFetch() {
+  // unitPref = !unitPref;
+  // sharedPreferencesInstance.setBool('unitPref', unitPref);
+  final bool? instancePref = sharedPreferencesInstance.getBool('unitPref');
+  print("instancePref: $instancePref");
+}
 
 Future<Main> getCoordinates(address) async {
   // Google Geocoding API KEY
@@ -50,9 +59,12 @@ Future<Model> fetchForecast(coordinates) async {
   var localhost = dotenv.env["localhost"].toString();
   // var units = "imperial";
   // var units = "metric";
-  print("unitsBool: $unitBool");
+  // print("unitsBool: $unitBool");
+  final bool? instancePref = sharedPreferencesInstance.getBool('unitPref');
+
+  print("instancePref: $instancePref");
   // var bool = unitsBool;
-  var units = unitBool ? "imperial" : "metric";
+  var units = instancePref! ? "imperial" : "metric";
   // print("unitsBool: $unitsBool");
   // print("units: $units");
   var lang = "en";
@@ -100,6 +112,9 @@ Future findLocation(address) async {
             0,
             name?.indexOf(','),
           );
+      if (sharedPreferencesInstance.getBool('unitPref') == null) {
+        sharedPreferencesInstance.setBool('unitPref', true);
+      }
       print("location.name: ${location.name}");
       return coordinates = 'lat=$lat&lon=$lng';
     },
@@ -120,34 +135,6 @@ Future findLocation(address) async {
           location.timezone = forecastResponse.timezone;
           location.dt = currentTime(forecastResponse.current.dt.toInt(),
               forecastResponse.timezone.toString());
-          // DateTime local = DateTime.fromMillisecondsSinceEpoch(
-          //     forecastResponse.current.dt.toInt() * 1000);
-          // print("local: $local");
-          // final locationTime =
-          //     TZDateTime.from(local, getLocation(forecastResponse.timezone));
-          // print("locationTime: $locationTime");
-          // var result;
-          // var reversed = reverseStringUsingSplit(locationTime.toString());
-          // if (reversed.contains("+")) {
-          //   var index = reversed.indexOf("+");
-          //   print("index: $index");
-          //   var string = reversed.substring(index + 1, reversed.length);
-          //   result = reverseStringUsingSplit(string);
-          //   print("result: $result");
-          // } else if (reversed.contains("-")) {
-          //   var index = reversed.indexOf("-");
-          //   print("index: $index");
-          //   var string = reversed.substring(index + 1, reversed.length);
-          //   result = reverseStringUsingSplit(string);
-          //   print("result: $result");
-          // }
-          // var locationFormat =
-          //     DateFormat("h:mm a").format(DateTime.parse(result));
-          // print("locationFormat: $locationFormat");
-          // location.dt = locationFormat;
-          // print("location.dt: ${location.dt}");
-          // hourlyList.add(forecastResponse.hourly);
-          // dailyList.add(forecastResponse.daily);
           location.isDaytime = false;
           if (forecastResponse.current.weather.first.icon.contains('d')) {
             location.isDaytime = true;
@@ -159,23 +146,13 @@ Future findLocation(address) async {
           for (var i = 0; i < forecastResponse.daily.length; i++) {
             dailyList.add(forecastResponse.daily);
           }
-          // print("location.temp: ${location.temp}");
-          // print("location.coordinates: ${location.coordinates}");
-
           return location;
-          // List<Model> list = [];
-          // num length = weatherHourly.properties?.periods?.length as num;
-          // for (var k = 0; k < length; k++) {
-          //   list.add(weatherHourly.properties!.periods![k]);
-          // }
-          // hourlyList.add(list);
         },
       ).then(
         (location) {
           print(location.coordinates);
           // loadPreferences();
           if (sharedPreferencesList.isEmpty) {
-            int zero = 0;
             addLocationValue(
               SharedPref(
                 icon: location.icon,
@@ -187,7 +164,7 @@ Future findLocation(address) async {
                 humidity: location.humidity,
                 main: location.main,
                 moon_phase: location.moon_phase,
-                index: zero,
+                index: 0,
                 timezone: location.timezone,
                 dt: location.dt,
               ),
@@ -252,63 +229,38 @@ Future findLocation(address) async {
 Future initSharedPreferences() async {
   sharedPreferencesInstance = await SharedPreferences.getInstance();
   await loadPreferences();
-  for (var i = 0; i < sharedPreferencesList.length; i++) {
-    await fetchForecast(
-      sharedPreferencesList[i].coordinates,
-    ).then(
-      (forecastResponse) {
-        // print(
-        //     "forecastResponse.timezone_offset: ${forecastResponse.timezone_offset}");
-        sharedPreferencesList[i].icon =
-            forecastResponse.current.weather.first.icon;
-        sharedPreferencesList[i].main =
-            forecastResponse.current.weather.first.main;
-        sharedPreferencesList[i].temp =
-            forecastResponse.current.temp.ceil().toString();
+  if (sharedPreferencesList.isNotEmpty) {
+    tempCheck = sharedPreferencesInstance.getBool('unitPref');
+    for (var i = 0; i < sharedPreferencesList.length; i++) {
+      await fetchForecast(
+        sharedPreferencesList[i].coordinates,
+      ).then(
+        (forecastResponse) {
+          sharedPreferencesList[i].icon =
+              forecastResponse.current.weather.first.icon;
+          sharedPreferencesList[i].main =
+              forecastResponse.current.weather.first.main;
+          sharedPreferencesList[i].temp =
+              forecastResponse.current.temp.ceil().toString();
+          sharedPreferencesList[i].timezone = forecastResponse.timezone;
+          print(sharedPreferencesList[i].timezone);
 
-        sharedPreferencesList[i].timezone = forecastResponse.timezone;
-        print(sharedPreferencesList[i].timezone);
+          sharedPreferencesList[i].dt = currentTime(
+              forecastResponse.current.dt.toInt(),
+              sharedPreferencesList[i].timezone.toString());
+          hourlyList.clear();
+          dailyList.clear();
+          hourlyList.add(forecastResponse.hourly);
+          dailyList.add(forecastResponse.daily);
 
-        sharedPreferencesList[i].dt = currentTime(
-            forecastResponse.current.dt.toInt(),
-            sharedPreferencesList[i].timezone.toString());
-        // DateTime local = DateTime.fromMillisecondsSinceEpoch(
-        //     forecastResponse.current.dt.toInt() * 1000);
-        // print("local: $local");
-        // final locationTime =
-        //     TZDateTime.from(local, getLocation(forecastResponse.timezone));
-        // print("locationTime: $locationTime");
-
-        // var result;
-        // var reversed = reverseStringUsingSplit(locationTime.toString());
-        // if (reversed.contains("+")) {
-        //   var index = reversed.indexOf("+");
-        //   print("index: $index");
-        //   var string = reversed.substring(index + 1, reversed.length);
-        //   result = reverseStringUsingSplit(string);
-        //   print("result: $result");
-        // } else if (reversed.contains("-")) {
-        //   var index = reversed.indexOf("-");
-        //   print("index: $index");
-        //   var string = reversed.substring(index + 1, reversed.length);
-        //   result = reverseStringUsingSplit(string);
-        //   print("result: $result");
-        // }
-        // var locationFormat =
-        //     DateFormat("h:mm a").format(DateTime.parse(result));
-        // print("locationFormat: $locationFormat");
-        // sharedPreferencesList[i].dt = locationFormat;
-        // print("sharedPreferencesList[i].dt: ${sharedPreferencesList[i].dt}");
-        hourlyList.add(forecastResponse.hourly);
-        dailyList.add(forecastResponse.daily);
-
-        sharedPreferencesList[i].isDaytime = false;
-        if (forecastResponse.current.weather.first.icon.contains('d')) {
-          sharedPreferencesList[i].isDaytime = true;
-        }
-        print("isDaytime: ${sharedPreferencesList[i].isDaytime}");
-      },
-    );
+          sharedPreferencesList[i].isDaytime = false;
+          if (forecastResponse.current.weather.first.icon.contains('d')) {
+            sharedPreferencesList[i].isDaytime = true;
+          }
+          print("isDaytime: ${sharedPreferencesList[i].isDaytime}");
+        },
+      );
+    }
   }
 }
 

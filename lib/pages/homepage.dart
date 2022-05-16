@@ -6,20 +6,16 @@ import 'package:intl/intl.dart';
 import 'package:national_weather/Widgets/glass.dart';
 import 'package:national_weather/main.dart';
 import 'package:national_weather/models/geocoding/main/main.dart';
+import 'package:national_weather/my_icons_icons.dart';
 import 'package:timezone/timezone.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../http/fetch.dart';
 import 'weatherpage.dart';
 
-bool units = true;
-final unitsProvider = StateProvider<bool>((_) => units);
-
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({
     Key? key,
   }) : super(key: key);
-
-  // final String title;
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -33,11 +29,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   final TextEditingController _addressController = TextEditingController();
-  // Weather weatherHourly = Weather();
-  // Weather weather = Weather();
   Main listResults = Main();
-  // Office office = Office();
-  // SharedPref location = SharedPref();
 
   void clear() {
     _addressController.clear();
@@ -46,21 +38,22 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final unitsBool = ref.read(unitsProvider);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         actions: [
           IconButton(
             onPressed: () {
-              print("unitBool: $unitBool");
-              setState(() {
-                unitBool = !unitBool;
-              });
-              print("onPressed unitBool: $unitBool");
+              bool? unitPref = sharedPreferencesInstance.getBool('unitPref');
+              unitPref = !unitPref!;
+              sharedPreferencesInstance.setBool('unitPref', unitPref);
+              print("onPressed unitPref: $unitPref");
               initSharedPreferences().then((_) => setState(() {}));
+              // dummyFetch();
             },
-            icon: const Icon(Icons.thermostat),
+            icon: tempCheck ?? true
+                ? const Icon(MyIcons.celcius)
+                : const Icon(MyIcons.fahrenheit),
           ),
         ],
         elevation: 0,
@@ -94,12 +87,22 @@ class _HomePageState extends ConsumerState<HomePage> {
               children: [
                 // ElevatedButton(
                 //     onPressed: () {
+                //       final bool? prePref =
+                //           sharedPreferencesInstance.getBool('unitPref');
+                //       // print("unitPref: $unitPref");
+                //       print("prePref: $prePref");
+                //       sharedPreferencesInstance.remove('unitPref');
                 //       sharedPreferencesList.clear();
                 //       savePreferences();
                 //       setState(() {});
+
+                //       final bool? postPref =
+                //           sharedPreferencesInstance.getBool('unitPref');
+                //       // print("unitPref: $unitPref");
+                //       print("postPref: $postPref");
                 //     },
                 //     child: const Text("delete")),
-                // Text(unitBool.toString()),
+                // Text(unitPref.toString()),
                 const Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
@@ -214,7 +217,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       padding:
                                           const EdgeInsets.fromLTRB(0, 0, 0, 8),
                                       child: Text(
-                                        '${sharedListIndex.temp}°',
+                                        '${sharedListIndex.temp} °${tempCheck ?? true ? 'F' : "C"}',
                                         style: const TextStyle(fontSize: 25),
                                       ),
                                     ),
