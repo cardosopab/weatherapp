@@ -243,88 +243,121 @@ class _HomePageState extends ConsumerState<HomePage> {
                     );
                   },
                 ),
-                // Padding(
-                //   padding: const EdgeInsets.all(8.0),
-                //   child: Column(
-                //     children: [
-                // Padding(
-                //   padding: const EdgeInsets.all(8.0),
-                //   child: RichText(
-                //     text: TextSpan(
-                //       children: [
-                //         const TextSpan(
-                //           text: 'Learn more about the ',
-                //           style: TextStyle(color: Colors.white),
-                //         ),
-                //         TextSpan(
-                //           text: 'National Weather Service',
-                //           style: const TextStyle(
-                //               decoration: TextDecoration.underline,
-                //               color: Colors.blue),
-                //           recognizer: TapGestureRecognizer()
-                //             ..onTap = () async {
-                //               var url = 'https://www.weather.gov/';
-                //               if (await canLaunch(url)) {
-                //                 await launch(url);
-                //               } else {
-                //                 throw 'Cannot load Url';
-                //               }
-                //             },
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
-                // Padding(
-                //   padding: const EdgeInsets.all(8.0),
-                //   child: RichText(
-                //     text: TextSpan(
-                //       children: [
-                //         const TextSpan(
-                //           text: 'And the ',
-                //           style: TextStyle(color: Colors.white),
-                //         ),
-                //         TextSpan(
-                //           text:
-                //               'National Oceanic & Atmospheric Administraion',
-                //           style: const TextStyle(
-                //               decoration: TextDecoration.underline,
-                //               color: Colors.blue),
-                //           recognizer: TapGestureRecognizer()
-                //             ..onTap = () async {
-                //               var url = 'https://www.noaa.gov/';
-                //               if (await canLaunch(url)) {
-                //                 await launch(url);
-                //               } else {
-                //                 throw 'Cannot load Url';
-                //               }
-                //             },
-                //         )
-                //       ],
-                //     ),
-                //   ),
-                // ),
-                // Padding(
-                //   padding: const EdgeInsets.all(8.0),
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                //     children: const [
-                //       CircleAvatar(
-                //         radius: 35,
-                //         backgroundImage: AssetImage(
-                //             'assets/images/180px-US-NationalWeatherService-Logo.svg.png'),
-                //       ),
-                //       CircleAvatar(
-                //         radius: 35,
-                //         backgroundImage:
-                //             AssetImage('assets/images/noaa.png'),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                //     ],
-                //   ),
-                // ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              const TextSpan(
+                                text: 'Learn more about the ',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              TextSpan(
+                                text: 'Google Geocoding API',
+                                style: const TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.blue),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () async {
+                                    var url =
+                                        'https://developers.google.com/maps/documentation/geocoding/';
+                                    if (await canLaunch(url)) {
+                                      await launch(url);
+                                    } else {
+                                      throw 'Cannot load Url';
+                                    }
+                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              const TextSpan(
+                                text: 'And the ',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              TextSpan(
+                                text: 'Open Weather Maps API',
+                                style: const TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: Colors.blue),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () async {
+                                    var url = 'https://openweathermap.org/api';
+                                    if (await canLaunch(url)) {
+                                      await launch(url);
+                                    } else {
+                                      throw 'Cannot load Url';
+                                    }
+                                  },
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            CircleAvatar(
+                              radius: 35,
+                              backgroundColor: Colors.transparent,
+                              child: Image.asset(
+                                'assets/images/google-maps-logo.png',
+                                fit: BoxFit.none,
+                              ),
+                            ),
+                            CircleAvatar(
+                              radius: 35,
+                              backgroundColor: Colors.transparent,
+                              child: Image.asset(
+                                'assets/images/logo_white_cropped.png',
+                                fit: BoxFit.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      //   children: [
+                      //     Container(
+                      //       width: 40,
+                      //       height: 40,
+                      //       decoration: const BoxDecoration(
+                      //         // shape: BoxShape.circle,
+                      //         image: DecorationImage(
+                      //             image:
+                      //                 AssetImage('assets/images/favicon.ico'),
+                      //             fit: BoxFit.fill),
+                      //       ),
+                      //     ),
+                      //     // Container(
+                      //     //   width: 200,
+                      //     //   height: 20,
+                      //     //   decoration: const BoxDecoration(
+                      //     //     shape: BoxShape.circle,
+                      //     //     image: DecorationImage(
+                      //     //         image: AssetImage(
+                      //     //             'assets/images/places_icon.svg'),
+                      //     //         fit: BoxFit.fill),
+                      //     //   ),
+                      //     // ),
+                      //   ],
+                      // ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
