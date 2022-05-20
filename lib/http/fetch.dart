@@ -1,6 +1,7 @@
 import 'dart:convert' as convert;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_place/google_place.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:national_weather/models/nationalweather/daily/daily.dart';
@@ -12,7 +13,7 @@ import 'package:timezone/timezone.dart';
 import '../main.dart';
 import '../models/geocoding/main/main.dart';
 import '../models/sharedpreferences/sharedPref.dart';
-// import 'package:riverpod/riverpod.dart';
+import 'dart:async';
 
 String coordinates = '';
 // String forecastUrl = '';
@@ -28,6 +29,30 @@ SharedPref location = SharedPref();
 late SharedPreferences sharedPreferencesInstance;
 List<SharedPref> sharedPreferencesList = <SharedPref>[];
 
+late GooglePlace googlePlace;
+List<AutocompletePrediction> predictions = [];
+DetailsResult? locationResult;
+// Timer? _debounce;
+
+var googleCloudPlatform = dotenv.env["googleCloudPlatform"].toString();
+
+// @override
+// void initState() {
+//   super.initState();
+//   googlePlace = GooglePlace(googleCloudPlatform);
+//   initSharedPreferences().then((_) => setState(() {}));
+// }
+
+// void autoCompleteSearch(String value) async {
+//   var result = await googlePlace.autocomplete.get(value);
+//   if (result != null && result.predictions != null && mounted) {
+//     print(result.predictions!.first.description);
+//     setState(() {
+//       predictions = result.predictions!;
+//     });
+//   }
+// }
+
 void dummyFetch() {
   // unitPref = !unitPref;
   // sharedPreferencesInstance.setBool('unitPref', unitPref);
@@ -36,11 +61,11 @@ void dummyFetch() {
 }
 
 Future<Main> getCoordinates(address) async {
-  // Google Geocoding API KEY
-  var GEOCODING = dotenv.env["GEOCODING"];
-  var localhost = dotenv.env["localgeocoding"].toString();
+  // Google Geocoding API KEY & googleCloudPlatform credentials
+
+  var googleCloudPlatform = dotenv.env["googleCloudPlatform"];
   var url =
-      'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$GEOCODING';
+      'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$googleCloudPlatform';
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
     var jsonBody = await convert.json.decode(response.body);
@@ -55,11 +80,8 @@ Future<Main> getCoordinates(address) async {
 Future<Model> fetchForecast(coordinates) async {
   // print(coordinates);
   // openWeatherAPI
+
   var openWeatherAPI = dotenv.env["openWeatherAPI"];
-  var localhost = dotenv.env["localhost"].toString();
-  // var units = "imperial";
-  // var units = "metric";
-  // print("unitsBool: $unitBool");
   final bool? instancePref = sharedPreferencesInstance.getBool('unitPref');
 
   print("instancePref: $instancePref");
@@ -102,135 +124,148 @@ void addLocationValue(SharedPref value) {
   savePreferences();
 }
 
-Future findLocation(address) async {
-  await getCoordinates(address).then(
-    (listResults) {
-      var lat = listResults.results?.first.geometry?.location?.lat.toString();
-      var lng = listResults.results?.first.geometry?.location?.lng.toString();
-      var name = listResults.results?.first.formatted_address;
-      location.name = name.toString().substring(
-            0,
-            name?.indexOf(','),
-          );
-      if (sharedPreferencesInstance.getBool('unitPref') == null) {
-        sharedPreferencesInstance.setBool('unitPref', true);
-      }
-      print("location.name: ${location.name}");
-      return coordinates = 'lat=$lat&lon=$lng';
-    },
-  ).then(
-    (coordinates) async {
-      // print(forecastHourlyUrl);
-      await fetchForecast(coordinates).then(
-        (forecastResponse) {
-          location.icon = forecastResponse.current.weather.first.icon;
-          location.description =
-              forecastResponse.current.weather.first.description;
-          location.temp = forecastResponse.current.temp.ceil().toString();
-          location.coordinates = coordinates;
-          location.humidity = forecastResponse.daily.first.humidity.toString();
-          location.main = forecastResponse.current.weather.first.main;
-          location.moon_phase =
-              forecastResponse.daily.first.moon_phase.toString();
-          location.timezone = forecastResponse.timezone;
-          location.dt = currentTime(forecastResponse.current.dt.toInt(),
-              forecastResponse.timezone.toString());
-          location.isDaytime = false;
-          if (forecastResponse.current.weather.first.icon.contains('d')) {
-            location.isDaytime = true;
+Future findLocation(coordinates, name) async {
+  location.name = name;
+  if (sharedPreferencesInstance.getBool('unitPref') == null) {
+    sharedPreferencesInstance.setBool('unitPref', true);
+  }
+  await fetchForecast(coordinates).then(
+    (forecastResponse) {
+      //     location.icon = forecastResponse.current.weather.first.icon;
+      //     location.description = forecastResponse.current.weather.first.description;
+      //     location.temp = forecastResponse.current.temp.ceil().toString();
+      //     location.coordinates = coordinates;
+      //     location.humidity = forecastResponse.daily.first.humidity.toString();
+      //     location.main = forecastResponse.current.weather.first.main;
+      //     location.moon_phase = forecastResponse.daily.first.moon_phase.toString();
+      //     location.timezone = forecastResponse.timezone;
+      //     location.dt = currentTime(forecastResponse.current.dt.toInt(),
+      //         forecastResponse.timezone.toString());
+      //     location.isDaytime = false;
+      //     if (forecastResponse.current.weather.first.icon.contains('d')) {
+      //       location.isDaytime = true;
+      //     }
+      //     // print("location.isDaytime: ${location.isDaytime}");
+      if (sharedPreferencesList.isEmpty) {
+        print("before hourlyList.length: ${hourlyList.length}");
+        print("before dailyList.length: ${dailyList.length}");
+        for (var i = 0; i < forecastResponse.hourly.length; i++) {
+          hourlyList.add(forecastResponse.hourly);
+        }
+        for (var i = 0; i < forecastResponse.daily.length; i++) {
+          dailyList.add(forecastResponse.daily);
+        }
+        print("hourlyList.length: ${hourlyList.length}");
+        print("dailyList.length: ${dailyList.length}");
+        //     return location;
+        //   },
+        // ).then(
+        //   (location) {
+
+        // print(location.coordinates);
+        // loadPreferences();
+        var dayTime = forecastResponse.current.weather.first.icon.contains('d')
+            ? true
+            : false;
+        addLocationValue(
+          SharedPref(
+            icon: forecastResponse.current.weather.first.icon,
+            description: forecastResponse.current.weather.first.description,
+            temp: forecastResponse.current.temp.ceil().toString(),
+            coordinates: coordinates,
+            humidity: forecastResponse.daily.first.humidity.toString(),
+            main: forecastResponse.current.weather.first.main,
+            moon_phase: forecastResponse.daily.first.moon_phase.toString(),
+            timezone: forecastResponse.timezone,
+            dt: currentTime(forecastResponse.current.dt.toInt(),
+                forecastResponse.timezone.toString()),
+            name: name,
+            isDaytime: dayTime,
+            index: 0,
+          ),
+        );
+        print(sharedPreferencesList.first.toJson());
+        // print(
+        //     "sharedPreferencesList.first.index: ${sharedPreferencesList.first.index}");
+        // return;
+      } else {
+        bool inList = false;
+        for (var i = 0; i < sharedPreferencesList.length; i++) {
+          if (sharedPreferencesList[i].toJson().containsValue(location.name)) {
+            inList = true;
+          } else {
+            inList = false;
           }
-          print(location.isDaytime);
+        }
+        if (inList == false) {
+          print("before hourlyList.length: ${hourlyList.length}");
+          print("before dailyList.length: ${dailyList.length}");
           for (var i = 0; i < forecastResponse.hourly.length; i++) {
             hourlyList.add(forecastResponse.hourly);
           }
           for (var i = 0; i < forecastResponse.daily.length; i++) {
             dailyList.add(forecastResponse.daily);
           }
-          return location;
-        },
-      ).then(
-        (location) {
-          print(location.coordinates);
-          // loadPreferences();
-          if (sharedPreferencesList.isEmpty) {
-            addLocationValue(
-              SharedPref(
-                icon: location.icon,
-                name: location.name,
-                description: location.description,
-                temp: location.temp,
-                coordinates: location.coordinates,
-                isDaytime: location.isDaytime,
-                humidity: location.humidity,
-                main: location.main,
-                moon_phase: location.moon_phase,
-                index: 0,
-                timezone: location.timezone,
-                dt: location.dt,
-              ),
-            );
-            print(sharedPreferencesList.first.toJson());
-            print(sharedPreferencesList.first.index);
-            return;
-          }
-          bool inList = false;
-          for (var i = 0; i < sharedPreferencesList.length; i++) {
-            if (sharedPreferencesList[i]
-                .toJson()
-                .containsValue(location.name)) {
-              inList = true;
-            } else {
-              inList = false;
-            }
-          }
-          if (inList == false) {
-            addLocationValue(
-              SharedPref(
-                icon: location.icon,
-                name: location.name,
-                description: location.description,
-                temp: location.temp,
-                coordinates: location.coordinates,
-                isDaytime: location.isDaytime,
-                humidity: location.humidity,
-                main: location.main,
-                moon_phase: location.moon_phase,
-                index: sharedPreferencesList.length,
-                timezone: location.timezone,
-                dt: location.dt,
-              ),
-            );
-            print(sharedPreferencesList.first.toJson());
-          }
-          // for (var i = 0; i < sharedPreferencesList.length; i++) {
-          //   fetchForecast(sharedPreferencesList[i].coordinates).then(
-          //     (forecastResponse) {
-          //       List<Model> list = [];
-          //       num length = forecastResponse.properties?.periods?.length as num;
-          //       for (var j = 0; j < length; j++) {
-          //         list.add(forecastResponseproperties!.periods![j]);
-          //       }
-          //       dailyList.add(list);
-          //     },
-          //   );
-          // }
-        },
-      );
+          print("hourlyList.length: ${hourlyList.length}");
+          print("dailyList.length: ${dailyList.length}");
+          var dayTime =
+              forecastResponse.current.weather.first.icon.contains('d')
+                  ? true
+                  : false;
+          print(
+              "sharedPreferencesList.last.index: ${sharedPreferencesList.last.index}");
+          print(
+              "sharedPreferencesList.length: ${sharedPreferencesList.length}");
+          addLocationValue(
+            SharedPref(
+              icon: forecastResponse.current.weather.first.icon,
+              description: forecastResponse.current.weather.first.description,
+              temp: forecastResponse.current.temp.ceil().toString(),
+              coordinates: coordinates,
+              humidity: forecastResponse.daily.first.humidity.toString(),
+              main: forecastResponse.current.weather.first.main,
+              moon_phase: forecastResponse.daily.first.moon_phase.toString(),
+              timezone: forecastResponse.timezone,
+              dt: currentTime(forecastResponse.current.dt.toInt(),
+                  forecastResponse.timezone.toString()),
+              name: name,
+              isDaytime: dayTime,
+              // icon: location.icon,
+              // name: location.name,
+              // description: location.description,
+              // temp: location.temp,
+              // coordinates: location.coordinates,
+              // isDaytime: location.isDaytime,
+              // humidity: location.humidity,
+              // main: location.main,
+              // moon_phase: location.moon_phase,
+              index: sharedPreferencesList.length,
+              // timezone: location.timezone,
+              // dt: location.dt,
+            ),
+          );
+          print(
+              "sharedPreferencesList.length: ${sharedPreferencesList.length}");
+          print(
+              "sharedPreferencesList.last.index: ${sharedPreferencesList.last.index}");
+          print(
+              "sharedPreferencesList.last.toJson(): ${sharedPreferencesList.last.toJson()}");
+        }
+      }
+      // final sharedPrefIndex = sharedPreferencesList.last.index;
+      // print("sharedPrefIndex: $sharedPrefIndex");
+      // return sharedPrefIndex;
     },
   );
 }
-
-// Future<int> convertLocal(time, location) async {
-//   DateTime localTime = time;
-//   final locationTime = TZDateTime.from(localTime, getLocation(location));
-//   return locationTime;
-// }
 
 Future initSharedPreferences() async {
   sharedPreferencesInstance = await SharedPreferences.getInstance();
   await loadPreferences();
   if (sharedPreferencesList.isNotEmpty) {
     tempCheck = sharedPreferencesInstance.getBool('unitPref');
+    hourlyList.clear();
+    dailyList.clear();
     for (var i = 0; i < sharedPreferencesList.length; i++) {
       await fetchForecast(
         sharedPreferencesList[i].coordinates,
@@ -248,8 +283,7 @@ Future initSharedPreferences() async {
           sharedPreferencesList[i].dt = currentTime(
               forecastResponse.current.dt.toInt(),
               sharedPreferencesList[i].timezone.toString());
-          hourlyList.clear();
-          dailyList.clear();
+
           hourlyList.add(forecastResponse.hourly);
           dailyList.add(forecastResponse.daily);
 
@@ -271,23 +305,23 @@ String reverseStringUsingSplit(String input) {
 
 String hourlyTime(int dt, String timezone) {
   DateTime local = DateTime.fromMillisecondsSinceEpoch(dt * 1000);
-  print("local: $local");
+  // print("local: $local");
   final locationTime = TZDateTime.from(local, getLocation(timezone));
-  print("locationTime: $locationTime");
+  // print("locationTime: $locationTime");
   var result;
   var reversed = reverseStringUsingSplit(locationTime.toString());
   if (reversed.contains("+")) {
     var index = reversed.indexOf("+");
-    print("index: $index");
+    // print("index: $index");
     var string = reversed.substring(index + 1, reversed.length);
     result = reverseStringUsingSplit(string);
-    print("result: $result");
+    // print("result: $result");
   } else if (reversed.contains("-")) {
     var index = reversed.indexOf("-");
-    print("index: $index");
+    // print("index: $index");
     var string = reversed.substring(index + 1, reversed.length);
     result = reverseStringUsingSplit(string);
-    print("result: $result");
+    // print("result: $result");
   }
   var locationFormat = DateFormat("h a").format(DateTime.parse(result));
   return locationFormat;
@@ -295,23 +329,23 @@ String hourlyTime(int dt, String timezone) {
 
 String currentTime(int dt, String timezone) {
   DateTime local = DateTime.fromMillisecondsSinceEpoch(dt * 1000);
-  print("local: $local");
+  // print("local: $local");
   final locationTime = TZDateTime.from(local, getLocation(timezone));
-  print("locationTime: $locationTime");
+  // print("locationTime: $locationTime");
   var result;
   var reversed = reverseStringUsingSplit(locationTime.toString());
   if (reversed.contains("+")) {
     var index = reversed.indexOf("+");
-    print("index: $index");
+    // print("index: $index");
     var string = reversed.substring(index + 1, reversed.length);
     result = reverseStringUsingSplit(string);
-    print("result: $result");
+    // print("result: $result");
   } else if (reversed.contains("-")) {
     var index = reversed.indexOf("-");
-    print("index: $index");
+    // print("index: $index");
     var string = reversed.substring(index + 1, reversed.length);
     result = reverseStringUsingSplit(string);
-    print("result: $result");
+    // print("result: $result");
   }
   var locationFormat = DateFormat("h:mm a").format(DateTime.parse(result));
   return locationFormat;

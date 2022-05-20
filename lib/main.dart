@@ -9,20 +9,17 @@ import 'pages/homepage.dart';
 
 // var unitBool = true;
 void main() async {
+  tz.initializeTimeZones();
   await dotenv.load(fileName: "dotenv");
 
   if (kIsWeb) {
-    // Future<void> setup() async {
-    //   await tz.initializeTimeZone();
-    //   var detroit = tz.getLocation('America/Detroit');
-    //   var now = tz.TZDateTime.now(detroit);
-    // }
+    // tz.initializeTimeZones();
 
     runApp(const ProviderScope(
         child:
             Center(child: SizedBox(width: 400, height: 800, child: MyApp()))));
   } else {
-    tz.initializeTimeZones();
+    // tz.initializeTimeZones();
     runApp(const ProviderScope(child: MyApp()));
   }
 }
