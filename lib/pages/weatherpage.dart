@@ -117,7 +117,7 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        "${hourlyList[listIndex].first.temp.ceil().toString()}°${tempCheck ?? true ? 'F' : "C"}",
+                                        "${hourlyList[listIndex].first.temp.ceil().toString()}°${tempCheck ? 'F' : "C"}",
                                         style: const TextStyle(fontSize: 50),
                                       ),
                                     ),

@@ -16,17 +16,19 @@ import '../models/sharedpreferences/sharedPref.dart';
 import 'dart:async';
 
 String coordinates = '';
-// String forecastUrl = '';
-// String forecastHourlyUrl = '';
 List<List<Hourly>> hourlyList = [];
 List<List<Daily>> dailyList = [];
 final hourlyListProvider = StateProvider((_) => hourlyList);
 final dailyListProvider = StateProvider((_) => dailyList);
-// bool unitPref = true;
-var tempCheck;
-
-SharedPref location = SharedPref();
 late SharedPreferences sharedPreferencesInstance;
+final Future<SharedPreferences> _sharedPreferencesInstance =
+    SharedPreferences.getInstance();
+// bool tempCheck = sharedPreferencesInstance.getBool("tempCheck") == null
+//     ? true
+//     : sharedPreferencesInstance.getBool("tempCheck")!;
+
+bool tempCheck = true;
+
 List<SharedPref> sharedPreferencesList = <SharedPref>[];
 List<PlaceField> placeFields = [
   PlaceField.Address,
@@ -99,11 +101,11 @@ Future<Model> fetchForecast(coordinates) async {
   // openWeatherAPI
 
   var openWeatherAPI = dotenv.env["openWeatherAPI"];
-  final bool? instancePref = sharedPreferencesInstance.getBool('unitPref');
+  // final bool? instancePref = sharedPreferencesInstance.getBool('unitPref');
 
-  print("instancePref: $instancePref");
+  // print("instancePref: $instancePref");
   // var bool = unitsBool;
-  var units = instancePref! ? "imperial" : "metric";
+  var units = tempCheck ? "imperial" : "metric";
   // print("unitsBool: $unitsBool");
   // print("units: $units");
   var lang = "en";
@@ -142,10 +144,9 @@ void addLocationValue(SharedPref value) {
 }
 
 Future findLocation(coordinates, name) async {
-  location.name = name;
-  if (sharedPreferencesInstance.getBool('unitPref') == null) {
-    sharedPreferencesInstance.setBool('unitPref', true);
-  }
+  // if (sharedPreferencesInstance.getBool('unitPref') == null) {
+  //   sharedPreferencesInstance.setBool('unitPref', true);
+  // }
   await fetchForecast(coordinates).then(
     (forecastResponse) {
       //     location.icon = forecastResponse.current.weather.first.icon;
@@ -208,7 +209,7 @@ Future findLocation(coordinates, name) async {
       } else {
         bool inList = false;
         for (var i = 0; i < sharedPreferencesList.length; i++) {
-          if (sharedPreferencesList[i].toJson().containsValue(location.name)) {
+          if (sharedPreferencesList[i].toJson().containsValue(name)) {
             inList = true;
           } else {
             inList = false;
@@ -277,10 +278,20 @@ Future findLocation(coordinates, name) async {
 }
 
 Future initSharedPreferences() async {
-  sharedPreferencesInstance = await SharedPreferences.getInstance();
+  sharedPreferencesInstance = await _sharedPreferencesInstance;
   await loadPreferences();
+  // bool tempCheck = sharedPreferencesInstance.getBool("tempCheck") == null
+//     ? true
+//     : sharedPreferencesInstance.getBool("tempCheck")!;
+  if (sharedPreferencesInstance.getBool("tempCheck") == null) {
+    sharedPreferencesInstance.setBool("tempCheck", true);
+    tempCheck = sharedPreferencesInstance.getBool("tempCheck")!;
+  } else {
+    tempCheck = sharedPreferencesInstance.getBool("tempCheck")!;
+  }
+  print("tempCheck after init: $tempCheck");
   if (sharedPreferencesList.isNotEmpty) {
-    tempCheck = sharedPreferencesInstance.getBool('unitPref');
+    // tempCheck = sharedPreferencesInstance.getBool('unitPref')!;
     hourlyList.clear();
     dailyList.clear();
     for (var i = 0; i < sharedPreferencesList.length; i++) {
@@ -312,8 +323,6 @@ Future initSharedPreferences() async {
         },
       );
     }
-  } else {
-    sharedPreferencesInstance.setBool(tempCheck, true);
   }
 }
 

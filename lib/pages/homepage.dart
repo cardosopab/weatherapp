@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/material.dart';
 import 'package:national_weather/Widgets/glass.dart';
@@ -13,7 +13,7 @@ import '../http/fetch.dart';
 import 'weatherpage.dart';
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 
-class HomePage extends ConsumerStatefulWidget {
+class HomePage extends StatefulWidget {
   const HomePage({
     Key? key,
   }) : super(key: key);
@@ -22,7 +22,7 @@ class HomePage extends ConsumerStatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> {
+class _HomePageState extends State<HomePage> {
   late final FlutterGooglePlacesSdk googlePlaces;
   List<AutocompletePrediction> predictions = [];
   Timer? _debounce;
@@ -59,7 +59,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print("tempCheck: $tempCheck");
+    // print("tempCheck: $tempCheck");
     return Scaffold(
       // extendBody: true,
       // extendBodyBehindAppBar: true,
@@ -120,15 +120,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                     padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
                     child: IconButton(
                       onPressed: () {
-                        bool? unitPref =
-                            sharedPreferencesInstance.getBool('unitPref');
-                        unitPref = !unitPref!;
-                        sharedPreferencesInstance.setBool('unitPref', unitPref);
-                        print("onPressed unitPref: $unitPref");
+                        // bool? unitPref =
+                        //     sharedPreferencesInstance.getBool('unitPref');
+                        // unitPref = !unitPref;
+                        // print("onPressed unitPref: $unitPref");
+                        tempCheck = !tempCheck;
+                        sharedPreferencesInstance.setBool(
+                            'tempCheck', tempCheck);
                         initSharedPreferences().then((_) => setState(() {}));
                         // dummyFetch();
                       },
-                      icon: tempCheck ?? true
+                      icon: tempCheck
                           ? const Icon(
                               MyIcons.celcius,
                               size: 40,
@@ -354,7 +356,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           padding: const EdgeInsets.fromLTRB(
                                               0, 0, 0, 8),
                                           child: Text(
-                                            '${sharedListIndex.temp} °${tempCheck ?? true ? 'F' : "C"}',
+                                            '${sharedListIndex.temp} °${tempCheck ? 'F' : "C"}',
                                             style:
                                                 const TextStyle(fontSize: 25),
                                           ),
