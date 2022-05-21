@@ -1,7 +1,7 @@
 import 'dart:convert' as convert;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_place/google_place.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:national_weather/models/nationalweather/daily/daily.dart';
@@ -28,10 +28,27 @@ var tempCheck;
 SharedPref location = SharedPref();
 late SharedPreferences sharedPreferencesInstance;
 List<SharedPref> sharedPreferencesList = <SharedPref>[];
-
-late GooglePlace googlePlace;
-List<AutocompletePrediction> predictions = [];
-DetailsResult? locationResult;
+List<PlaceField> placeFields = [
+  PlaceField.Address,
+  PlaceField.AddressComponents,
+  PlaceField.BusinessStatus,
+  PlaceField.Id,
+  PlaceField.Location,
+  PlaceField.Name,
+  PlaceField.OpeningHours,
+  PlaceField.PhoneNumber,
+  PlaceField.PhotoMetadatas,
+  PlaceField.PlusCode,
+  PlaceField.PriceLevel,
+  PlaceField.Rating,
+  PlaceField.Types,
+  PlaceField.UserRatingsTotal,
+  PlaceField.UTCOffset,
+  PlaceField.Viewport,
+  PlaceField.WebsiteUri,
+];
+// late FlutterGooglePlacesSdk googlePlaces;
+// List<AutocompletePrediction> predictions = [];
 // Timer? _debounce;
 
 var googleCloudPlatform = dotenv.env["googleCloudPlatform"].toString();
@@ -63,7 +80,7 @@ void dummyFetch() {
 Future<Main> getCoordinates(address) async {
   // Google Geocoding API KEY & googleCloudPlatform credentials
 
-  var googleCloudPlatform = dotenv.env["googleCloudPlatform"];
+  // var googleCloudPlatform = dotenv.env["googleCloudPlatform"];
   var url =
       'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$googleCloudPlatform';
   final response = await http.get(Uri.parse(url));
@@ -295,6 +312,8 @@ Future initSharedPreferences() async {
         },
       );
     }
+  } else {
+    sharedPreferencesInstance.setBool(tempCheck, true);
   }
 }
 

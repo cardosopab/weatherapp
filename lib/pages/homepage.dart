@@ -11,7 +11,7 @@ import 'package:national_weather/my_icons_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../http/fetch.dart';
 import 'weatherpage.dart';
-import 'package:google_place/google_place.dart';
+import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({
@@ -23,9 +23,8 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  // late GooglePlace googlePlace;
-  // List<AutocompletePrediction> predictions = [];
-  // DetailsResult? locationResult;
+  late final FlutterGooglePlacesSdk googlePlaces;
+  List<AutocompletePrediction> predictions = [];
   Timer? _debounce;
 
   // var googleCloudPlatform = dotenv.env["googleCloudPlatform"].toString();
@@ -33,18 +32,21 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
-    googlePlace = GooglePlace(googleCloudPlatform);
+    googlePlaces = FlutterGooglePlacesSdk(googleCloudPlatform);
     initSharedPreferences().then((_) => setState(() {}));
+    print("sharedPreferencesList.length: ${sharedPreferencesList.length}");
   }
 
   void autoCompleteSearch(String value) async {
-    var result = await googlePlace.autocomplete.get(value);
-    if (result != null && result.predictions != null && mounted) {
-      print(result.predictions!.first.description);
-      setState(() {
-        predictions = result.predictions!;
-      });
-    }
+    var result = await googlePlaces.findAutocompletePredictions(value);
+    // if (result != null && result.predictions != null && mounted) {
+    print("result: $result");
+    setState(() {
+      // predictions = result.predictions;
+      predictions = result.predictions;
+    });
+    print("predictions: $predictions");
+    // }
   }
 
   final TextEditingController _addressController = TextEditingController();
@@ -238,25 +240,23 @@ class _HomePageState extends ConsumerState<HomePage> {
                       itemCount: predictions.length,
                       itemBuilder: (BuildContext context, int index) {
                         return ListTile(
-                          title:
-                              Text(predictions[index].description.toString()),
+                          title: Text(
+                              "${predictions[index].primaryText}, ${predictions[index].secondaryText}"),
                           onTap: () async {
-                            final placeId = predictions[index].placeId!;
+                            final placeId = predictions[index].placeId;
+                            print("placeId: $placeId");
+                            print(
+                                "predictions[index].placeId: ${predictions[index].placeId}");
 
-                            final details =
-                                await googlePlace.details.get(placeId);
-                            if (details != null &&
-                                details.result != null &&
-                                mounted) {
-                              var lat =
-                                  details.result!.geometry!.location!.lat!;
-                              var lng =
-                                  details.result!.geometry!.location!.lng!;
-                              var name = details.result!.name!;
+                            final details = await googlePlaces
+                                .fetchPlace(placeId, fields: placeFields);
+                            // await googlePlaces.details.get(placeId);
+                            if (mounted) {
+                              var lat = details.place!.latLng!.lat;
+                              var lng = details.place!.latLng!.lng;
                               final coordinates = 'lat=$lat&lon=$lng';
+                              var name = predictions[index].primaryText;
                               await findLocation(coordinates, name).then((_) {
-                                // sharedPrefIndex = sharedPrefIndex;
-                                // print("sharedPrefIndex: $sharedPrefIndex");
                                 setState(() {});
                                 Navigator.push(
                                   context,
@@ -270,16 +270,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 predictions = [];
                                 clear();
                               });
-
-                              // locationResult = details.result;
-                              // _addressController.text =
-                              //     details.result!.formattedAddress!;
-
-                              // print(
-                              //     "locationResult!.addressComponents!.first.longName: ${locationResult!.addressComponents!.first.longName}");
-                              // print("details: $details");
-                              print(
-                                  "coordinates: ${details.result!.geometry!.location!.lat!}, ${details.result!.geometry!.location!.lng!}");
                             }
                           },
                         );

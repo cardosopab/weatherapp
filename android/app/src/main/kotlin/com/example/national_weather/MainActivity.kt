@@ -1,4 +1,4 @@
-package com.example.national_weather
+package com.cardosopab.weather_buddy
 
 import io.flutter.embedding.android.FlutterActivity
 

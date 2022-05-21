@@ -48,7 +48,7 @@ dependencies:
   timezone: ^0.8.0
   riverpod: ^1.0.3
   flutter_riverpod: ^1.0.3
-  google_place: ^0.4.7
+  flutter_google_places_sdk: ^0.3.2+1
   
 
 dev_dependencies:
