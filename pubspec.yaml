@@ -50,6 +50,7 @@ dependencies:
   flutter_riverpod: ^1.0.3
   flutter_google_places_sdk: ^0.3.2+1
   
+  
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +64,13 @@ dev_dependencies:
   flutter_lints: ^1.0.0
   build_runner: ^2.1.8
   json_serializable: ^6.1.5
+  flutter_launcher_icons_maker: "^0.10.1"
+
+flutter_icons:
+  android: true
+  ios: true
+  web: true
+  image_path: "assets/images/pc_300.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
