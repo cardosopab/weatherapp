@@ -101,12 +101,8 @@ Future findLocation(coordinates, name) async {
   await fetchForecast(coordinates).then(
     (forecastResponse) {
       if (sharedPreferencesList.isEmpty) {
-        for (var i = 0; i < forecastResponse.hourly.length; i++) {
-          hourlyList.add(forecastResponse.hourly);
-        }
-        for (var i = 0; i < forecastResponse.daily.length; i++) {
-          dailyList.add(forecastResponse.daily);
-        }
+        hourlyList.add(forecastResponse.hourly);
+        dailyList.add(forecastResponse.daily);
         var dayTime = forecastResponse.current.weather.first.icon.contains('d')
             ? true
             : false;
@@ -137,12 +133,8 @@ Future findLocation(coordinates, name) async {
           }
         }
         if (inList == false) {
-          for (var i = 0; i < forecastResponse.hourly.length; i++) {
-            hourlyList.add(forecastResponse.hourly);
-          }
-          for (var i = 0; i < forecastResponse.daily.length; i++) {
-            dailyList.add(forecastResponse.daily);
-          }
+          hourlyList.add(forecastResponse.hourly);
+          dailyList.add(forecastResponse.daily);
           var dayTime =
               forecastResponse.current.weather.first.icon.contains('d')
                   ? true
@@ -175,18 +167,15 @@ Future initSharedPreferences() async {
   await loadPreferences();
   if (sharedPreferencesInstance.getBool("tempCheck") == null) {
     sharedPreferencesInstance.setBool("tempCheck", true);
-    tempCheck = sharedPreferencesInstance.getBool("tempCheck")!;
   } else {
     tempCheck = sharedPreferencesInstance.getBool("tempCheck")!;
-  }
-  if (sharedPreferencesList.isNotEmpty) {
-    hourlyList.clear();
-    dailyList.clear();
     for (var i = 0; i < sharedPreferencesList.length; i++) {
       await fetchForecast(
         sharedPreferencesList[i].coordinates,
       ).then(
         (forecastResponse) {
+          hourlyList.add(forecastResponse.hourly);
+          dailyList.add(forecastResponse.daily);
           sharedPreferencesList[i].icon =
               forecastResponse.current.weather.first.icon;
           sharedPreferencesList[i].main =
@@ -198,9 +187,6 @@ Future initSharedPreferences() async {
           sharedPreferencesList[i].dt = currentTime(
               forecastResponse.current.dt.toInt(),
               sharedPreferencesList[i].timezone.toString());
-
-          hourlyList.add(forecastResponse.hourly);
-          dailyList.add(forecastResponse.daily);
 
           sharedPreferencesList[i].isDaytime = false;
           if (forecastResponse.current.weather.first.icon.contains('d')) {
