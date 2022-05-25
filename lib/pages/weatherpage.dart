@@ -1,5 +1,3 @@
-import 'dart:developer';
-import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:national_weather/Widgets/glass.dart';
@@ -8,9 +6,8 @@ import 'package:national_weather/models/nationalweather/daily/daily.dart';
 import 'package:national_weather/models/nationalweather/hourly/hourly.dart';
 import 'package:national_weather/models/sharedpreferences/sharedPref.dart';
 import '../http/fetch.dart';
-import 'package:readmore/readmore.dart';
 
-var day = [
+var day = const [
   // Color(0xFF3c9dd0),
   // Color(0xFF086ca2),
   // Color(0xFF235b79),
@@ -22,7 +19,7 @@ var day = [
   Color(0xFF3c62da),
   Color(0xFF1a48bc),
 ];
-var night = [
+var night = const [
   Color(0xFF1b233e),
   Color(0xFF051d2f),
   Color(0xFF062965),
@@ -39,9 +36,6 @@ class WeatherPage extends ConsumerStatefulWidget {
 }
 
 class _WeatherPageState extends ConsumerState<WeatherPage> {
-  // Weather weather = Weather();
-  // Weather weatherHourly = Weather();
-
   @override
   Widget build(BuildContext context) {
     final List<List<Hourly>> hourlyList = ref.watch(hourlyListProvider);
@@ -49,26 +43,7 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
     double blur = 30;
     double opacity = .5;
     int listIndex = widget.sharedPref.index!;
-    // int listIndex = 0;
-    print("listIndex: $listIndex");
-    print("widget.sharedPref.index: ${widget.sharedPref.index}");
-    print("hourlyList.length: ${hourlyList.length}");
-    print("dailyList.length: ${dailyList.length}");
-    print(sharedPreferencesList[listIndex].timezone);
-    print(coordinates);
-    print("sharedPreferencesList.length: ${sharedPreferencesList.length}");
-
-    // for (var i = 0; i < dailyList.length; i++) {
-    // log("dailyList: ${dailyList[listIndex][i].toJson()}");
-    // }
     return Scaffold(
-      // extendBody: true,
-      // extendBodyBehindAppBar: true,
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   backgroundColor: Colors.transparent,
-      //   centerTitle: true,
-      // ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -91,13 +66,10 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
               SliverList(
                 delegate: SliverChildListDelegate(
                   [
-                    // mainAxisSize: MainAxisSize.min,
-                    // children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(40, 8, 40, 40),
                       child: GlassMorphism(
                         isDaytime: widget.sharedPref.isDaytime,
-                        // hourlyList[listIndex?.toInt() ?? 0].first.isDaytime,
                         blur: blur,
                         opacity: opacity,
                         child: Padding(
@@ -144,16 +116,6 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                       child: Text(
                                           "HUMIDITY: ${dailyList[listIndex].first.humidity.toString()}%"),
                                     ),
-                                    // Padding(
-                                    //   padding: const EdgeInsets.all(8.0),
-                                    //   child: Text(
-                                    //       "Moon Phase: ${widget.sharedPref.moon_phase.toString()}%"),
-                                    // ),
-                                    // Padding(
-                                    //   padding: const EdgeInsets.all(8.0),
-                                    //   child: Text(
-                                    //       "Clouds: ${hourlyList[listIndex].first.clouds.toString()}%"),
-                                    // ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
@@ -164,11 +126,6 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                       child: Text(
                                           "WIND SPEED: ${hourlyList[listIndex].first.wind_speed.toString()} ${tempCheck ? "MPH" : "KPH"}"),
                                     ),
-                                    // Padding(
-                                    // padding: const EdgeInsets.all(8.0),
-                                    // child: Text(
-                                    // "WIND SPEED: ${hourlyList[listIndex].first.visibility.toString()} mph"),
-                                    // ),
                                   ],
                                 )
                               ],
@@ -198,14 +155,12 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                         WidgetSpan(
                                           child: Icon(
                                             Icons.access_time_filled,
-                                            // color: Colors.blue,
                                             size: 15,
                                           ),
                                         ),
                                         TextSpan(text: " HOURLY FORECAST"),
                                       ],
                                     ),
-                                    // style: widget.sharedPref.isDaytime! ? day : night,
                                   ),
                                 ),
                               ),
@@ -218,18 +173,6 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
                                       children: [
-                                        // Text(
-                                        //   DateFormat("E h a")
-                                        //       .format(
-                                        //         DateTime.fromMillisecondsSinceEpoch(
-                                        //           hourlyList[listIndex][index]
-                                        //                   .dt
-                                        //                   .toInt() *
-                                        //               1000,
-                                        //         ),
-                                        //       )
-                                        //       .toString(),
-                                        // ),
                                         Text(hourlyTime(
                                             hourlyList[listIndex][index]
                                                 .dt
@@ -242,9 +185,6 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                             backgroundColor: Colors.transparent,
                                             backgroundImage: AssetImage(
                                                 "assets/images/${hourlyList[listIndex][index].weather.first.icon}.png"),
-                                            // backgroundImage: NetworkImage(
-                                            //   "https://openweathermap.org/img/wn/${hourlyList[listIndex][index].weather.first.icon}.png",
-                                            // ),
                                           ),
                                         ),
                                         Text(
@@ -266,182 +206,126 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                         isDaytime: widget.sharedPref.isDaytime,
                         blur: blur,
                         opacity: opacity,
-                        child: Container(
-                          child: Column(
-                            children: [
-                              const Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(16, 10, 8, 8),
-                                  child: Text.rich(
-                                    TextSpan(
-                                      children: <InlineSpan>[
-                                        WidgetSpan(
-                                          child: Icon(
-                                            Icons.calendar_month_outlined,
-                                            // color: Colors.blue,
-                                            size: 15,
-                                          ),
+                        child: Column(
+                          children: [
+                            const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(16, 10, 8, 8),
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: <InlineSpan>[
+                                      WidgetSpan(
+                                        child: Icon(
+                                          Icons.calendar_month_outlined,
+                                          size: 15,
                                         ),
-                                        TextSpan(text: " 7-DAY FORECAST"),
-                                      ],
-                                    ),
-                                    // style: TextStyle(color: Colors.blue),
+                                      ),
+                                      TextSpan(text: " 7-DAY FORECAST"),
+                                    ],
                                   ),
                                 ),
                               ),
-                              Row(
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: const [
+                                SizedBox(
+                                  width: 30,
+                                  child: Text(""),
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                  child: Text(""),
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                  child: Text(
+                                    "MORN",
+                                    style: TextStyle(fontSize: 10),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                  child: Text(
+                                    "DAY",
+                                    style: TextStyle(fontSize: 10),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                  child: Text(
+                                    "EVE",
+                                    style: TextStyle(fontSize: 10),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                  child: Text(
+                                    "NIGHT",
+                                    style: TextStyle(fontSize: 10),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: dailyList[listIndex].length,
+                              itemBuilder: (context, index) => Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
-                                children: const [
-                                  SizedBox(
-                                    width: 30,
-                                    child: Text(""),
-                                  ),
-                                  SizedBox(
-                                    width: 30,
-                                    child: Text(""),
-                                  ),
+                                children: [
                                   SizedBox(
                                     width: 30,
                                     child: Text(
-                                      "MORN",
-                                      style: TextStyle(fontSize: 10),
+                                      DateFormat("E").format(
+                                        DateTime.fromMillisecondsSinceEpoch(
+                                          dailyList[listIndex][index]
+                                                  .dt
+                                                  .toInt() *
+                                              1000,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 40,
+                                    child: CircleAvatar(
+                                      backgroundColor: Colors.transparent,
+                                      backgroundImage: NetworkImage(
+                                        "https://openweathermap.org/img/wn/${dailyList[listIndex][index].weather.first.icon}.png",
+                                      ),
                                     ),
                                   ),
                                   SizedBox(
                                     width: 30,
                                     child: Text(
-                                      "DAY",
-                                      style: TextStyle(fontSize: 10),
+                                      "${dailyList[listIndex][index].temp.morn.ceil().toString()}°",
                                     ),
                                   ),
                                   SizedBox(
                                     width: 30,
                                     child: Text(
-                                      "EVE",
-                                      style: TextStyle(fontSize: 10),
+                                      "${dailyList[listIndex][index].temp.day.ceil().toString()}°",
                                     ),
                                   ),
                                   SizedBox(
                                     width: 30,
                                     child: Text(
-                                      "NIGHT",
-                                      style: TextStyle(fontSize: 10),
+                                      "${dailyList[listIndex][index].temp.eve.ceil().toString()}°",
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                    child: Text(
+                                      "${dailyList[listIndex][index].temp.night.ceil().toString()}°",
                                     ),
                                   ),
                                 ],
                               ),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: dailyList[listIndex].length,
-                                itemBuilder: (context, index) => Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    SizedBox(
-                                      width: 30,
-                                      child: Text(
-                                        DateFormat("E").format(
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                            dailyList[listIndex][index]
-                                                    .dt
-                                                    .toInt() *
-                                                1000,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    // Text(dailyList[listIndex][index].temp.morn.toString()),
-                                    SizedBox(
-                                      width: 40,
-                                      child: CircleAvatar(
-                                        backgroundColor: Colors.transparent,
-                                        backgroundImage: NetworkImage(
-                                          "https://openweathermap.org/img/wn/${dailyList[listIndex][index].weather.first.icon}.png",
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 30,
-                                      child: Text(
-                                        "${dailyList[listIndex][index].temp.morn.ceil().toString()}°",
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 30,
-                                      child: Text(
-                                        "${dailyList[listIndex][index].temp.day.ceil().toString()}°",
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 30,
-                                      child: Text(
-                                        "${dailyList[listIndex][index].temp.eve.ceil().toString()}°",
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 30,
-                                      child: Text(
-                                        "${dailyList[listIndex][index].temp.night.ceil().toString()}°",
-                                      ),
-                                    ),
-                                    // Column(
-                                    //   children: [
-                                    //     Text(
-                                    //         dailyList[listIndex][index].temp.day.toString())
-                                    // SizedBox(
-                                    //   width: 75,
-                                    //   child: Text(dailyList[listIndex ?? 0][index]
-                                    //       .weather
-                                    //       .first
-                                    //       .main),
-                                    // ),
-                                    // Text(
-                                    //   dailyList[listIndex ?? 0][index].isDaytime ==
-                                    //           false
-                                    //       ? "Low ${dailyList[listIndex ?? 0][index].temperature.toString()}°${dailyList[listIndex ?? 0][index].temperatureUnit.toString()}"
-                                    //       : "High ${dailyList[listIndex ?? 0][index].temperature.toString()} °${dailyList[listIndex ?? 0][index].temperatureUnit.toString()}",
-                                    // ),
-                                    // ],
-                                    // ),
-                                    // Padding(
-                                    //   padding: const EdgeInsets.all(8.0),
-                                    //   child: CircleAvatar(
-                                    //     backgroundImage: NetworkImage(
-                                    //       "https://openweathermap.org/img/wn/${dailyList[listIndex?.toInt() ?? 0][index].weather.first.icon.toString()}.png",
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                    // Expanded(
-                                    //   child: Padding(
-                                    //     padding: const EdgeInsets.all(8.0),
-                                    //     child: ReadMoreText(
-                                    //       dailyList[listIndex ?? 0][index]
-                                    //           .weather
-                                    //           .first
-                                    //           .description,
-                                    //       style: const TextStyle(color: Colors.white),
-                                    //       trimLines: 3,
-                                    //       trimMode: TrimMode.Line,
-                                    //       trimCollapsedText: 'Read More',
-                                    //       trimExpandedText: 'Read Less',
-                                    //       lessStyle: const TextStyle(
-                                    //           color: Colors.white,
-                                    //           fontWeight: FontWeight.bold),
-                                    //       moreStyle: const TextStyle(
-                                    //           color: Colors.white,
-                                    //           fontWeight: FontWeight.bold),
-                                    //       colorClickableText: Colors.pink,
-                                    //     ),
-                                    //   ),
-                                    // )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

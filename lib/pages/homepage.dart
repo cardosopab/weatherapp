@@ -1,8 +1,5 @@
 import 'dart:async';
-
 import 'package:flutter/gestures.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/material.dart';
 import 'package:national_weather/Widgets/glass.dart';
@@ -27,26 +24,18 @@ class _HomePageState extends State<HomePage> {
   List<AutocompletePrediction> predictions = [];
   Timer? _debounce;
 
-  // var googleCloudPlatform = dotenv.env["googleCloudPlatform"].toString();
-
   @override
   void initState() {
     super.initState();
     googlePlaces = FlutterGooglePlacesSdk(googleCloudPlatform);
     initSharedPreferences().then((_) => setState(() {}));
-    print("sharedPreferencesList.length: ${sharedPreferencesList.length}");
   }
 
   void autoCompleteSearch(String value) async {
     var result = await googlePlaces.findAutocompletePredictions(value);
-    // if (result != null && result.predictions != null && mounted) {
-    print("result: $result");
     setState(() {
-      // predictions = result.predictions;
       predictions = result.predictions;
     });
-    print("predictions: $predictions");
-    // }
   }
 
   final TextEditingController _addressController = TextEditingController();
@@ -59,40 +48,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // print("tempCheck: $tempCheck");
     return Scaffold(
-      // extendBody: true,
-      // extendBodyBehindAppBar: true,
-      // appBar: AppBar(
-      //   actions: [
-      //     Padding(
-      //       padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
-      //       child: IconButton(
-      //         onPressed: () {
-      //           bool? unitPref = sharedPreferencesInstance.getBool('unitPref');
-      //           unitPref = !unitPref!;
-      //           sharedPreferencesInstance.setBool('unitPref', unitPref);
-      //           print("onPressed unitPref: $unitPref");
-      //           initSharedPreferences().then((_) => setState(() {}));
-      //           // dummyFetch();
-      //         },
-      //         icon: tempCheck ?? true
-      //             ? const Icon(
-      //                 MyIcons.celcius,
-      //                 size: 40,
-      //               )
-      //             : const Icon(
-      //                 MyIcons.fahrenheit,
-      //                 size: 40,
-      //               ),
-      //       ),
-      //     ),
-      //   ],
-      //   elevation: 0,
-      //   backgroundColor: Colors.transparent,
-      //   centerTitle: true,
-      //   // title: Text(widget.title),
-      // ),
       body: Container(
         height: MediaQuery.of(context).size.height,
         decoration: const BoxDecoration(
@@ -120,15 +76,10 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
                     child: IconButton(
                       onPressed: () {
-                        // bool? unitPref =
-                        //     sharedPreferencesInstance.getBool('unitPref');
-                        // unitPref = !unitPref;
-                        // print("onPressed unitPref: $unitPref");
                         tempCheck = !tempCheck;
                         sharedPreferencesInstance.setBool(
                             'tempCheck', tempCheck);
                         initSharedPreferences().then((_) => setState(() {}));
-                        // dummyFetch();
                       },
                       icon: tempCheck
                           ? const Icon(
@@ -146,24 +97,6 @@ class _HomePageState extends State<HomePage> {
               SliverList(
                 delegate: SliverChildListDelegate(
                   [
-                    // ElevatedButton(
-                    //     onPressed: () {
-                    //       final bool? prePref =
-                    //           sharedPreferencesInstance.getBool('unitPref');
-                    //       // print("unitPref: $unitPref");
-                    //       print("prePref: $prePref");
-                    //       sharedPreferencesInstance.remove('unitPref');
-                    //       sharedPreferencesList.clear();
-                    //       savePreferences();
-                    //       setState(() {});
-
-                    //       final bool? postPref =
-                    //           sharedPreferencesInstance.getBool('unitPref');
-                    //       // print("unitPref: $unitPref");
-                    //       print("postPref: $postPref");
-                    //     },
-                    //     child: const Text("delete")),
-                    // Text(unitPref.toString()),
                     const Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
@@ -176,7 +109,6 @@ class _HomePageState extends State<HomePage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextField(
-                        // textAlign: TextAlign.center,
                         decoration: InputDecoration(
                           isDense: true,
                           floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -211,17 +143,6 @@ class _HomePageState extends State<HomePage> {
                         onSubmitted: (_addressController) async {
                           if (_addressController.isNotEmpty) {
                             clear();
-                            // await findLocation(_addressController)
-                            //     .then((_) => setState(() {}));
-                            // await findLocation(_addressController);
-                            // setState(() {});
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: ((context) => WeatherPage(
-                            //         sharedPref: sharedPreferencesList.last)),
-                            //   ),
-                            // );
                           }
                         },
                         onChanged: (value) {
@@ -246,13 +167,9 @@ class _HomePageState extends State<HomePage> {
                               "${predictions[index].primaryText}, ${predictions[index].secondaryText}"),
                           onTap: () async {
                             final placeId = predictions[index].placeId;
-                            print("placeId: $placeId");
-                            print(
-                                "predictions[index].placeId: ${predictions[index].placeId}");
 
                             final details = await googlePlaces
                                 .fetchPlace(placeId, fields: placeFields);
-                            // await googlePlaces.details.get(placeId);
                             if (mounted) {
                               var lat = details.place!.latLng!.lat;
                               var lng = details.place!.latLng!.lng;
@@ -284,9 +201,6 @@ class _HomePageState extends State<HomePage> {
                       itemCount: sharedPreferencesList.length,
                       itemBuilder: (context, index) {
                         final sharedListIndex = sharedPreferencesList[index];
-                        // print(
-                        //     "sharedPreferencesList[index].index: ${sharedPreferencesList[index].index}");
-                        // print("sharedListIndex: $sharedListIndex");
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: GestureDetector(
@@ -321,14 +235,11 @@ class _HomePageState extends State<HomePage> {
                               ),
                               child: GlassMorphism(
                                 isDaytime: sharedListIndex.isDaytime,
-                                // blur: 2,
-                                // opacity: .2,
                                 blur: 30,
                                 opacity: .5,
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
-                                  // crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.fromLTRB(
@@ -369,7 +280,6 @@ class _HomePageState extends State<HomePage> {
                                             image: DecorationImage(
                                                 image: AssetImage(
                                                     "assets/images/${sharedListIndex.icon}.png"),
-                                                // "https://openweathermap.org/img/wn/${sharedListIndex.icon}.png"),
 
                                                 fit: BoxFit.none),
                                           ),
@@ -381,7 +291,6 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
-                          // ),
                         );
                       },
                     ),
@@ -474,33 +383,6 @@ class _HomePageState extends State<HomePage> {
                               ],
                             ),
                           ),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          //   children: [
-                          //     Container(
-                          //       width: 40,
-                          //       height: 40,
-                          //       decoration: const BoxDecoration(
-                          //         // shape: BoxShape.circle,
-                          //         image: DecorationImage(
-                          //             image:
-                          //                 AssetImage('assets/images/favicon.ico'),
-                          //             fit: BoxFit.fill),
-                          //       ),
-                          //     ),
-                          //     // Container(
-                          //     //   width: 200,
-                          //     //   height: 20,
-                          //     //   decoration: const BoxDecoration(
-                          //     //     shape: BoxShape.circle,
-                          //     //     image: DecorationImage(
-                          //     //         image: AssetImage(
-                          //     //             'assets/images/places_icon.svg'),
-                          //     //         fit: BoxFit.fill),
-                          //     //   ),
-                          //     // ),
-                          //   ],
-                          // ),
                         ],
                       ),
                     ),
@@ -516,11 +398,3 @@ class _HomePageState extends State<HomePage> {
 }
 
 void doNothing(BuildContext context) {}
-
-// void convertLocalToDetroit() async {
-// DateTime indiaTime = DateTime.now(); //Emulator time is India time
-//   final detroitTime =
-//       new TZDateTime.from(indiaTime, getLocation('America/Detroit'));
-// print('Local India Time: ' + indiaTime.toString());
-//   print('Detroit Time: ' + detroitTime.toString());
-// }

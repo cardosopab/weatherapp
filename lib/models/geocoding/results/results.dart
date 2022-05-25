@@ -7,13 +7,11 @@ part 'results.g.dart';
 class Results {
   String? status;
   Geometry? geometry;
-  // List<Address>? address_components;
   String? formatted_address;
 
   Results({
     this.geometry,
     this.status,
-    // this.address_components,
     this.formatted_address,
   });
   factory Results.fromJson(Map<String, dynamic> json) =>

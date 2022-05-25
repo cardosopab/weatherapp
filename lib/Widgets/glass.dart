@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GlassMorphism extends StatelessWidget {
   final double blur;
@@ -24,7 +23,6 @@ class GlassMorphism extends StatelessWidget {
           decoration: BoxDecoration(
             color: isDaytime == true
                 ? Colors.blue[500]?.withOpacity(opacity)
-                // : Colors.cyan[800]?.withOpacity(opacity),
                 : Colors.blue[300]?.withOpacity(opacity),
             borderRadius: const BorderRadius.all(
               Radius.circular(20),
