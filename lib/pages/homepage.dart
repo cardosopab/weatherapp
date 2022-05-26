@@ -2,11 +2,11 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/material.dart';
-import 'package:national_weather/Widgets/glass.dart';
-import 'package:national_weather/models/geocoding/main/main.dart';
-import 'package:national_weather/my_icons_icons.dart';
+import 'package:weatherapp/Widgets/glass.dart';
+import 'package:weatherapp/my_icons_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../http/fetch.dart';
+import '../models/geocoding/main/main.dart';
 import 'weatherpage.dart';
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 
@@ -76,6 +76,8 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
                     child: IconButton(
                       onPressed: () {
+                        hourlyList.clear();
+                        dailyList.clear();
                         tempCheck = !tempCheck;
                         sharedPreferencesInstance.setBool(
                             'tempCheck', tempCheck);
@@ -222,6 +224,13 @@ class _HomePageState extends State<HomePage> {
                                     onPressed: (BuildContext context) {
                                       setState(() {
                                         sharedPreferencesList.removeAt(index);
+                                        hourlyList.removeAt(index);
+                                        dailyList.removeAt(index);
+                                        for (var i = 0;
+                                            i < sharedPreferencesList.length;
+                                            i++) {
+                                          sharedPreferencesList[i].index = i;
+                                        }
                                         savePreferences();
                                         loadPreferences();
                                       });

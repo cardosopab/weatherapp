@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:national_weather/Widgets/glass.dart';
 import 'package:flutter/material.dart';
-import 'package:national_weather/models/nationalweather/daily/daily.dart';
-import 'package:national_weather/models/nationalweather/hourly/hourly.dart';
-import 'package:national_weather/models/sharedpreferences/sharedPref.dart';
+import 'package:weatherapp/Widgets/glass.dart';
+import 'package:weatherapp/models/nationalweather/daily/daily.dart';
+import 'package:weatherapp/models/nationalweather/hourly/hourly.dart';
+import 'package:weatherapp/models/sharedpreferences/sharedPref.dart';
 import '../http/fetch.dart';
 
 var day = const [

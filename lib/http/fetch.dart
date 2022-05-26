@@ -4,9 +4,9 @@ import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:national_weather/models/nationalweather/daily/daily.dart';
-import 'package:national_weather/models/nationalweather/hourly/hourly.dart';
-import 'package:national_weather/models/nationalweather/model/models.dart';
+import 'package:weatherapp/models/nationalweather/daily/daily.dart';
+import 'package:weatherapp/models/nationalweather/hourly/hourly.dart';
+import 'package:weatherapp/models/nationalweather/model/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart';
 import '../models/geocoding/main/main.dart';
@@ -103,9 +103,6 @@ Future findLocation(coordinates, name) async {
       if (sharedPreferencesList.isEmpty) {
         hourlyList.add(forecastResponse.hourly);
         dailyList.add(forecastResponse.daily);
-        var dayTime = forecastResponse.current.weather.first.icon.contains('d')
-            ? true
-            : false;
         addLocationValue(
           SharedPref(
             icon: forecastResponse.current.weather.first.icon,
@@ -119,7 +116,9 @@ Future findLocation(coordinates, name) async {
             dt: currentTime(forecastResponse.current.dt.toInt(),
                 forecastResponse.timezone.toString()),
             name: name,
-            isDaytime: dayTime,
+            isDaytime: forecastResponse.current.weather.first.icon.contains('d')
+                ? true
+                : false,
             index: 0,
           ),
         );
@@ -135,10 +134,6 @@ Future findLocation(coordinates, name) async {
         if (inList == false) {
           hourlyList.add(forecastResponse.hourly);
           dailyList.add(forecastResponse.daily);
-          var dayTime =
-              forecastResponse.current.weather.first.icon.contains('d')
-                  ? true
-                  : false;
           addLocationValue(
             SharedPref(
               icon: forecastResponse.current.weather.first.icon,
@@ -152,7 +147,10 @@ Future findLocation(coordinates, name) async {
               dt: currentTime(forecastResponse.current.dt.toInt(),
                   forecastResponse.timezone.toString()),
               name: name,
-              isDaytime: dayTime,
+              isDaytime:
+                  forecastResponse.current.weather.first.icon.contains('d')
+                      ? true
+                      : false,
               index: sharedPreferencesList.length,
             ),
           );
@@ -165,6 +163,7 @@ Future findLocation(coordinates, name) async {
 Future initSharedPreferences() async {
   sharedPreferencesInstance = await _sharedPreferencesInstance;
   await loadPreferences();
+
   if (sharedPreferencesInstance.getBool("tempCheck") == null) {
     sharedPreferencesInstance.setBool("tempCheck", true);
   } else {
@@ -174,8 +173,6 @@ Future initSharedPreferences() async {
         sharedPreferencesList[i].coordinates,
       ).then(
         (forecastResponse) {
-          hourlyList.add(forecastResponse.hourly);
-          dailyList.add(forecastResponse.daily);
           sharedPreferencesList[i].icon =
               forecastResponse.current.weather.first.icon;
           sharedPreferencesList[i].main =
@@ -187,11 +184,12 @@ Future initSharedPreferences() async {
           sharedPreferencesList[i].dt = currentTime(
               forecastResponse.current.dt.toInt(),
               sharedPreferencesList[i].timezone.toString());
-
-          sharedPreferencesList[i].isDaytime = false;
-          if (forecastResponse.current.weather.first.icon.contains('d')) {
-            sharedPreferencesList[i].isDaytime = true;
-          }
+          sharedPreferencesList[i].isDaytime =
+              forecastResponse.current.weather.first.icon.contains('d')
+                  ? true
+                  : false;
+          hourlyList.add(forecastResponse.hourly);
+          dailyList.add(forecastResponse.daily);
         },
       );
     }

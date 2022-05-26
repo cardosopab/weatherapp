@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:national_weather/models/geocoding/results/results.dart';
+import 'package:weatherapp/models/geocoding/results/results.dart';
 
 part 'main.g.dart';
 

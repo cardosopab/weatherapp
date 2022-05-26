@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(national_weather LANGUAGES CXX)
+project(weatherapp LANGUAGES CXX)
 
-set(BINARY_NAME "national_weather")
+set(BINARY_NAME "weatherapp")
 
 cmake_policy(SET CMP0063 NEW)
 
