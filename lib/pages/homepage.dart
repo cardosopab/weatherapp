@@ -3,10 +3,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/material.dart';
 import 'package:weatherapp/Widgets/glass.dart';
+import 'package:weatherapp/models/openCoding/result.dart';
 import 'package:weatherapp/my_icons_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../http/fetch.dart';
-import '../models/geocoding/main/main.dart';
+// import '../models/geocoding/main/main.dart';
 import 'weatherpage.dart';
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 
@@ -21,7 +22,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final FlutterGooglePlacesSdk googlePlaces;
-  List<AutocompletePrediction> predictions = [];
+  List<OpenCoding> predictions = [];
   Timer? _debounce;
 
   @override
@@ -31,15 +32,15 @@ class _HomePageState extends State<HomePage> {
     initSharedPreferences().then((_) => setState(() {}));
   }
 
-  void autoCompleteSearch(String value) async {
-    var result = await googlePlaces.findAutocompletePredictions(value);
-    setState(() {
-      predictions = result.predictions;
-    });
-  }
+  // void autoCompleteSearch(String value) async {
+  //   var result = await googlePlaces.findAutocompletePredictions(value);
+  //   setState(() {
+  //     predictions = result.predictions;
+  //   });
+  // }
 
   final TextEditingController _addressController = TextEditingController();
-  Main listResults = Main();
+  // Main listResults = Main();
 
   void clear() {
     _addressController.clear();
@@ -137,13 +138,16 @@ class _HomePageState extends State<HomePage> {
                             borderRadius: BorderRadius.circular(10),
                             borderSide: const BorderSide(color: Colors.white),
                           ),
-                          hintText: 'Search weather location.',
+                          hintText: 'Search by city.',
                           filled: true,
                           fillColor: Colors.transparent,
                         ),
                         controller: _addressController,
                         onSubmitted: (_addressController) async {
                           if (_addressController.isNotEmpty) {
+                            predictions =
+                                await fetchLocation(_addressController);
+                            setState(() {});
                             clear();
                           }
                         },
@@ -152,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                           _debounce =
                               Timer(const Duration(milliseconds: 1000), () {
                             if (value.isNotEmpty) {
-                              autoCompleteSearch(value);
+                              // autoCompleteSearch(value);
                             } else {
                               clear();
                             }
@@ -166,32 +170,24 @@ class _HomePageState extends State<HomePage> {
                       itemBuilder: (BuildContext context, int index) {
                         return ListTile(
                           title: Text(
-                              "${predictions[index].primaryText}, ${predictions[index].secondaryText}"),
+                              "${predictions[index].name}, ${predictions[index].country}, ${predictions[index].state ?? ''}"),
                           onTap: () async {
-                            final placeId = predictions[index].placeId;
-
-                            final details = await googlePlaces
-                                .fetchPlace(placeId, fields: placeFields);
-                            if (mounted) {
-                              var lat = details.place!.latLng!.lat;
-                              var lng = details.place!.latLng!.lng;
-                              final coordinates = 'lat=$lat&lon=$lng';
-                              var name = predictions[index].primaryText;
-                              await findLocation(coordinates, name).then((_) {
-                                setState(() {});
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: ((context) => WeatherPage(
-                                        sharedPref:
-                                            sharedPreferencesList.last)),
-                                  ),
-                                );
-                              }).then((_) {
-                                predictions = [];
-                                clear();
-                              });
-                            }
+                            final coordinates =
+                                "lat=${predictions[index].lat}&lon=${predictions[index].lon}";
+                            final name = predictions[index].name;
+                            await findLocation(coordinates, name).then((_) {
+                              setState(() {});
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: ((context) => WeatherPage(
+                                      sharedPref: sharedPreferencesList.last)),
+                                ),
+                              );
+                            }).then((_) {
+                              predictions = [];
+                              clear();
+                            });
                           },
                         );
                       },
@@ -316,36 +312,6 @@ class _HomePageState extends State<HomePage> {
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   TextSpan(
-                                    text: 'Google Places API',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        decoration: TextDecoration.underline,
-                                        color: Colors.white),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () async {
-                                        var url =
-                                            'https://developers.google.com/maps/documentation/places/web-service';
-                                        if (await canLaunch(url)) {
-                                          await launch(url);
-                                        } else {
-                                          throw 'Cannot load Url';
-                                        }
-                                      },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: RichText(
-                              text: TextSpan(
-                                children: [
-                                  const TextSpan(
-                                    text: 'And the ',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  TextSpan(
                                     text: 'Open Weather Maps API',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -371,15 +337,6 @@ class _HomePageState extends State<HomePage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                CircleAvatar(
-                                  radius: 35,
-                                  backgroundColor:
-                                      const Color.fromRGBO(255, 255, 255, .1),
-                                  child: Image.asset(
-                                    'assets/images/google-maps-logo.png',
-                                    fit: BoxFit.none,
-                                  ),
-                                ),
                                 CircleAvatar(
                                   radius: 35,
                                   backgroundColor: Colors.transparent,

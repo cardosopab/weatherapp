@@ -11,7 +11,6 @@ void main() async {
   await dotenv.load(fileName: "dotenv");
 
   if (kIsWeb) {
-
     runApp(const ProviderScope(
         child:
             Center(child: SizedBox(width: 400, height: 800, child: MyApp()))));
@@ -26,6 +25,7 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
+
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {

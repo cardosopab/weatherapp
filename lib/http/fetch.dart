@@ -9,7 +9,8 @@ import 'package:weatherapp/models/nationalweather/hourly/hourly.dart';
 import 'package:weatherapp/models/nationalweather/model/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart';
-import '../models/geocoding/main/main.dart';
+import 'package:weatherapp/models/openCoding/result.dart';
+// import '../models/geocoding/main/main.dart';
 import '../models/sharedpreferences/sharedPref.dart';
 import 'dart:async';
 
@@ -47,16 +48,42 @@ List<PlaceField> placeFields = [
 
 var googleCloudPlatform = dotenv.env["googleCloudPlatform"].toString();
 
-Future<Main> getCoordinates(address) async {
+// Future<Main> getCoordinates(address) async {
+//   var url =
+//       'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$googleCloudPlatform';
+//   final response = await http.get(Uri.parse(url));
+//   if (response.statusCode == 200) {
+//     var jsonBody = await convert.json.decode(response.body);
+//     Main listResults = Main.fromJson(jsonBody);
+//     return listResults;
+//   } else {
+//     throw "getCoordinates Status !200: ${response.statusCode}";
+//   }
+// }
+
+Future<List<OpenCoding>> fetchLocation(location) async {
+  List<OpenCoding> locationResponse = [];
+  var openWeatherAPI = dotenv.env["openWeatherAPI"];
   var url =
-      'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$googleCloudPlatform';
+      "http://api.openweathermap.org/geo/1.0/direct?q=$location&limit=5&appid=$openWeatherAPI";
+
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
     var jsonBody = await convert.json.decode(response.body);
-    Main listResults = Main.fromJson(jsonBody);
-    return listResults;
+    for (var data in jsonBody) {
+      OpenCoding obj = OpenCoding(
+        name: data['name'],
+        lat: data['lat'],
+        lon: data['lon'],
+        country: data['country'],
+        state: data['state'],
+      );
+      locationResponse.add(obj);
+    }
+
+    return locationResponse;
   } else {
-    throw "getCoordinates Status !200: ${response.statusCode}";
+    throw "fetchForecast Status !200: ${response.statusCode}";
   }
 }
 
