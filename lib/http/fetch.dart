@@ -48,24 +48,11 @@ List<PlaceField> placeFields = [
 
 var googleCloudPlatform = dotenv.env["googleCloudPlatform"].toString();
 
-// Future<Main> getCoordinates(address) async {
-//   var url =
-//       'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$googleCloudPlatform';
-//   final response = await http.get(Uri.parse(url));
-//   if (response.statusCode == 200) {
-//     var jsonBody = await convert.json.decode(response.body);
-//     Main listResults = Main.fromJson(jsonBody);
-//     return listResults;
-//   } else {
-//     throw "getCoordinates Status !200: ${response.statusCode}";
-//   }
-// }
-
 Future<List<OpenCoding>> fetchLocation(location) async {
   List<OpenCoding> locationResponse = [];
   var openWeatherAPI = dotenv.env["openWeatherAPI"];
   var url =
-      "http://api.openweathermap.org/geo/1.0/direct?q=$location&limit=5&appid=$openWeatherAPI";
+      "https://api.openweathermap.org/geo/1.0/direct?q=$location&limit=5&appid=$openWeatherAPI";
 
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
