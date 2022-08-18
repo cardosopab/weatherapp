@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       scrollBehavior: MyCustomScrollBehavior(),
       debugShowCheckedModeBanner: false,
-      title: 'National Weather',
+      title: 'weatherApp',
       theme: ThemeData(
         brightness: Brightness.dark,
         fontFamily: 'Roboto',

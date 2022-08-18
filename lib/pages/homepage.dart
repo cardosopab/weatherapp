@@ -7,9 +7,7 @@ import 'package:weatherapp/models/openCoding/result.dart';
 import 'package:weatherapp/my_icons_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../http/fetch.dart';
-// import '../models/geocoding/main/main.dart';
 import 'weatherpage.dart';
-// import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -21,7 +19,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // late final FlutterGooglePlacesSdk googlePlaces;
   List<OpenCoding> predictions = [];
   Timer? _debounce;
 
@@ -32,12 +29,6 @@ class _HomePageState extends State<HomePage> {
     initSharedPreferences().then((_) => setState(() {}));
   }
 
-  // void autoCompleteSearch(String value) async {
-  //   var result = await googlePlaces.findAutocompletePredictions(value);
-  //   setState(() {
-  //     predictions = result.predictions;
-  //   });
-  // }
 
   final TextEditingController _addressController = TextEditingController();
   // Main listResults = Main();

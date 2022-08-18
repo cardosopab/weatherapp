@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:weatherapp/Widgets/glass.dart';
-import 'package:weatherapp/models/nationalweather/daily/daily.dart';
-import 'package:weatherapp/models/nationalweather/hourly/hourly.dart';
+import 'package:weatherapp/models/openweather/daily/daily.dart';
+import 'package:weatherapp/models/openweather/hourly/hourly.dart';
 import 'package:weatherapp/models/sharedpreferences/sharedPref.dart';
 import '../http/fetch.dart';
 
@@ -59,9 +59,7 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                 elevation: 0,
                 backgroundColor: Colors.transparent,
                 centerTitle: true,
-                leading: IconButton(
-                    onPressed: (() => Navigator.pop(context)),
-                    icon: const Icon(Icons.arrow_back_ios)),
+                leading: IconButton(onPressed: (() => Navigator.pop(context)), icon: const Icon(Icons.arrow_back_ios)),
               ),
               SliverList(
                 delegate: SliverChildListDelegate(
@@ -83,8 +81,7 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                          widget.sharedPref.name.toString()),
+                                      child: Text(widget.sharedPref.name.toString()),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
@@ -95,11 +92,7 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(hourlyList[listIndex]
-                                          .first
-                                          .weather
-                                          .first
-                                          .main),
+                                      child: Text(hourlyList[listIndex].first.weather.first.main),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
@@ -113,18 +106,15 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                          "HUMIDITY: ${dailyList[listIndex].first.humidity.toString()}%"),
+                                      child: Text("HUMIDITY: ${dailyList[listIndex].first.humidity.toString()}%"),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                          "FEELS LIKE: ${hourlyList[listIndex].first.feels_like.toString()}°"),
+                                      child: Text("FEELS LIKE: ${hourlyList[listIndex].first.feels_like.toString()}°"),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                          "WIND SPEED: ${hourlyList[listIndex].first.wind_speed.toString()} ${tempCheck ? "MPH" : "KPH"}"),
+                                      child: Text("WIND SPEED: ${hourlyList[listIndex].first.wind_speed.toString()} ${tempCheck ? "MPH" : "KPH"}"),
                                     ),
                                   ],
                                 )
@@ -173,18 +163,12 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
                                       children: [
-                                        Text(hourlyTime(
-                                            hourlyList[listIndex][index]
-                                                .dt
-                                                .toInt(),
-                                            widget.sharedPref.timezone
-                                                .toString())),
+                                        Text(hourlyTime(hourlyList[listIndex][index].dt.toInt(), widget.sharedPref.timezone.toString())),
                                         Padding(
                                           padding: const EdgeInsets.all(4.0),
                                           child: CircleAvatar(
                                             backgroundColor: Colors.transparent,
-                                            backgroundImage: AssetImage(
-                                                "assets/images/${hourlyList[listIndex][index].weather.first.icon}.png"),
+                                            backgroundImage: AssetImage("assets/images/${hourlyList[listIndex][index].weather.first.icon}.png"),
                                           ),
                                         ),
                                         Text(
@@ -273,18 +257,14 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: dailyList[listIndex].length,
                               itemBuilder: (context, index) => Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
                                   SizedBox(
                                     width: 30,
                                     child: Text(
                                       DateFormat("E").format(
                                         DateTime.fromMillisecondsSinceEpoch(
-                                          dailyList[listIndex][index]
-                                                  .dt
-                                                  .toInt() *
-                                              1000,
+                                          dailyList[listIndex][index].dt.toInt() * 1000,
                                         ),
                                       ),
                                     ),

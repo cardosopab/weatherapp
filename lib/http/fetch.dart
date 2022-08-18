@@ -1,16 +1,14 @@
 import 'dart:convert' as convert;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-// import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:weatherapp/models/nationalweather/daily/daily.dart';
-import 'package:weatherapp/models/nationalweather/hourly/hourly.dart';
-import 'package:weatherapp/models/nationalweather/model/models.dart';
+import 'package:weatherapp/models/openweather/daily/daily.dart';
+import 'package:weatherapp/models/openweather/hourly/hourly.dart';
+import 'package:weatherapp/models/openweather/model/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart';
 import 'package:weatherapp/models/openCoding/result.dart';
-// import '../models/geocoding/main/main.dart';
 import '../models/sharedpreferences/sharedPref.dart';
 import 'dart:async';
 
@@ -25,25 +23,6 @@ final Future<SharedPreferences> _sharedPreferencesInstance = SharedPreferences.g
 bool tempCheck = true;
 
 List<SharedPref> sharedPreferencesList = <SharedPref>[];
-// List<PlaceField> placeFields = [
-//   PlaceField.Address,
-//   PlaceField.AddressComponents,
-//   PlaceField.BusinessStatus,
-//   PlaceField.Id,
-//   PlaceField.Location,
-//   PlaceField.Name,
-//   PlaceField.OpeningHours,
-//   PlaceField.PhoneNumber,
-//   PlaceField.PhotoMetadatas,
-//   PlaceField.PlusCode,
-//   PlaceField.PriceLevel,
-//   PlaceField.Rating,
-//   PlaceField.Types,
-//   PlaceField.UserRatingsTotal,
-//   PlaceField.UTCOffset,
-//   PlaceField.Viewport,
-//   PlaceField.WebsiteUri,
-// ];
 
 var googleCloudPlatform = dotenv.env["googleCloudPlatform"].toString();
 
@@ -197,17 +176,21 @@ String hourlyTime(int dt, String timezone) {
   DateTime local = DateTime.fromMillisecondsSinceEpoch(dt * 1000);
   final locationTime = TZDateTime.from(local, getLocation(timezone));
   String? result;
+  print("locationTime: $locationTime");
   var reversed = reverseStringUsingSplit(locationTime.toString());
   if (reversed.contains("+")) {
     var index = reversed.indexOf("+");
     var string = reversed.substring(index + 1, reversed.length);
     result = reverseStringUsingSplit(string);
+    // print(result);
   } else if (reversed.contains("-")) {
     var index = reversed.indexOf("-");
     var string = reversed.substring(index + 1, reversed.length);
     result = reverseStringUsingSplit(string);
   }
+  print(result);
   var locationFormat = DateFormat("h a").format(DateTime.parse(result!));
+  print(locationFormat);
   return locationFormat;
 }
 
