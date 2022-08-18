@@ -11,9 +11,7 @@ void main() async {
   await dotenv.load(fileName: "dotenv");
 
   if (kIsWeb) {
-    runApp(const ProviderScope(
-        child:
-            Center(child: SizedBox(width: 400, height: 800, child: MyApp()))));
+    runApp(const ProviderScope(child: Center(child: SizedBox(width: 400, height: 800, child: MyApp()))));
   } else {
     runApp(const ProviderScope(child: MyApp()));
   }

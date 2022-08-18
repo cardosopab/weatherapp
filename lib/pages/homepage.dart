@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../http/fetch.dart';
 // import '../models/geocoding/main/main.dart';
 import 'weatherpage.dart';
-import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+// import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -21,14 +21,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final FlutterGooglePlacesSdk googlePlaces;
+  // late final FlutterGooglePlacesSdk googlePlaces;
   List<OpenCoding> predictions = [];
   Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    googlePlaces = FlutterGooglePlacesSdk(googleCloudPlatform);
+    // googlePlaces = FlutterGooglePlacesSdk(googleCloudPlatform);
     initSharedPreferences().then((_) => setState(() {}));
   }
 
@@ -80,8 +80,7 @@ class _HomePageState extends State<HomePage> {
                         hourlyList.clear();
                         dailyList.clear();
                         tempCheck = !tempCheck;
-                        sharedPreferencesInstance.setBool(
-                            'tempCheck', tempCheck);
+                        sharedPreferencesInstance.setBool('tempCheck', tempCheck);
                         initSharedPreferences().then((_) => setState(() {}));
                       },
                       icon: tempCheck
@@ -120,8 +119,7 @@ class _HomePageState extends State<HomePage> {
                             color: Colors.white,
                           ),
                           suffixIcon: Visibility(
-                            visible: _addressController.text.isNotEmpty ||
-                                predictions.isNotEmpty,
+                            visible: _addressController.text.isNotEmpty || predictions.isNotEmpty,
                             child: IconButton(
                               color: Colors.white,
                               icon: const Icon(Icons.clear),
@@ -145,16 +143,14 @@ class _HomePageState extends State<HomePage> {
                         controller: _addressController,
                         onSubmitted: (_addressController) async {
                           if (_addressController.isNotEmpty) {
-                            predictions =
-                                await fetchLocation(_addressController);
+                            predictions = await fetchLocation(_addressController);
                             setState(() {});
                             clear();
                           }
                         },
                         onChanged: (value) {
                           if (_debounce?.isActive ?? false) _debounce!.cancel();
-                          _debounce =
-                              Timer(const Duration(milliseconds: 1000), () {
+                          _debounce = Timer(const Duration(milliseconds: 1000), () {
                             if (value.isNotEmpty) {
                               // autoCompleteSearch(value);
                             } else {
@@ -169,19 +165,16 @@ class _HomePageState extends State<HomePage> {
                       itemCount: predictions.length,
                       itemBuilder: (BuildContext context, int index) {
                         return ListTile(
-                          title: Text(
-                              "${predictions[index].name}, ${predictions[index].country}, ${predictions[index].state ?? ''}"),
+                          title: Text("${predictions[index].name}, ${predictions[index].country}, ${predictions[index].state ?? ''}"),
                           onTap: () async {
-                            final coordinates =
-                                "lat=${predictions[index].lat}&lon=${predictions[index].lon}";
+                            final coordinates = "lat=${predictions[index].lat}&lon=${predictions[index].lon}";
                             final name = predictions[index].name;
                             await findLocation(coordinates, name).then((_) {
                               setState(() {});
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: ((context) => WeatherPage(
-                                      sharedPref: sharedPreferencesList.last)),
+                                  builder: ((context) => WeatherPage(sharedPref: sharedPreferencesList.last)),
                                 ),
                               );
                             }).then((_) {
@@ -206,8 +199,7 @@ class _HomePageState extends State<HomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: ((context) =>
-                                      WeatherPage(sharedPref: sharedListIndex)),
+                                  builder: ((context) => WeatherPage(sharedPref: sharedListIndex)),
                                 ),
                               );
                             }),
@@ -222,9 +214,7 @@ class _HomePageState extends State<HomePage> {
                                         sharedPreferencesList.removeAt(index);
                                         hourlyList.removeAt(index);
                                         dailyList.removeAt(index);
-                                        for (var i = 0;
-                                            i < sharedPreferencesList.length;
-                                            i++) {
+                                        for (var i = 0; i < sharedPreferencesList.length; i++) {
                                           sharedPreferencesList[i].index = i;
                                         }
                                         savePreferences();
@@ -243,38 +233,30 @@ class _HomePageState extends State<HomePage> {
                                 blur: 30,
                                 opacity: .5,
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0, 16, 0, 16),
+                                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
                                       child: Column(
                                         children: [
                                           Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0, 0, 0, 8),
+                                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
                                             child: Text(
                                               sharedListIndex.name.toString(),
-                                              style:
-                                                  const TextStyle(fontSize: 25),
+                                              style: const TextStyle(fontSize: 25),
                                             ),
                                           ),
-                                          Text(sharedListIndex.main.toString(),
-                                              style: const TextStyle(
-                                                  fontSize: 20)),
+                                          Text(sharedListIndex.main.toString(), style: const TextStyle(fontSize: 20)),
                                         ],
                                       ),
                                     ),
                                     Column(
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0, 0, 0, 8),
+                                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
                                           child: Text(
                                             '${sharedListIndex.temp} °${tempCheck ? 'F' : "C"}',
-                                            style:
-                                                const TextStyle(fontSize: 25),
+                                            style: const TextStyle(fontSize: 25),
                                           ),
                                         ),
                                         Container(
@@ -282,10 +264,7 @@ class _HomePageState extends State<HomePage> {
                                           height: 20,
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
-                                            image: DecorationImage(
-                                                image: AssetImage(
-                                                    "assets/images/${sharedListIndex.icon}.png"),
-                                                fit: BoxFit.none),
+                                            image: DecorationImage(image: AssetImage("assets/images/${sharedListIndex.icon}.png"), fit: BoxFit.none),
                                           ),
                                         ),
                                       ],
@@ -313,14 +292,10 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   TextSpan(
                                     text: 'Open Weather Maps API',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        decoration: TextDecoration.underline,
-                                        color: Colors.white),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline, color: Colors.white),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () async {
-                                        var url =
-                                            'https://openweathermap.org/api';
+                                        var url = 'https://openweathermap.org/api';
                                         if (await canLaunch(url)) {
                                           await launch(url);
                                         } else {

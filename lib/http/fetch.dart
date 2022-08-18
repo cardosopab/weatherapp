@@ -1,6 +1,6 @@
 import 'dart:convert' as convert;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+// import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -20,39 +20,37 @@ List<List<Daily>> dailyList = [];
 final hourlyListProvider = StateProvider((_) => hourlyList);
 final dailyListProvider = StateProvider((_) => dailyList);
 late SharedPreferences sharedPreferencesInstance;
-final Future<SharedPreferences> _sharedPreferencesInstance =
-    SharedPreferences.getInstance();
+final Future<SharedPreferences> _sharedPreferencesInstance = SharedPreferences.getInstance();
 
 bool tempCheck = true;
 
 List<SharedPref> sharedPreferencesList = <SharedPref>[];
-List<PlaceField> placeFields = [
-  PlaceField.Address,
-  PlaceField.AddressComponents,
-  PlaceField.BusinessStatus,
-  PlaceField.Id,
-  PlaceField.Location,
-  PlaceField.Name,
-  PlaceField.OpeningHours,
-  PlaceField.PhoneNumber,
-  PlaceField.PhotoMetadatas,
-  PlaceField.PlusCode,
-  PlaceField.PriceLevel,
-  PlaceField.Rating,
-  PlaceField.Types,
-  PlaceField.UserRatingsTotal,
-  PlaceField.UTCOffset,
-  PlaceField.Viewport,
-  PlaceField.WebsiteUri,
-];
+// List<PlaceField> placeFields = [
+//   PlaceField.Address,
+//   PlaceField.AddressComponents,
+//   PlaceField.BusinessStatus,
+//   PlaceField.Id,
+//   PlaceField.Location,
+//   PlaceField.Name,
+//   PlaceField.OpeningHours,
+//   PlaceField.PhoneNumber,
+//   PlaceField.PhotoMetadatas,
+//   PlaceField.PlusCode,
+//   PlaceField.PriceLevel,
+//   PlaceField.Rating,
+//   PlaceField.Types,
+//   PlaceField.UserRatingsTotal,
+//   PlaceField.UTCOffset,
+//   PlaceField.Viewport,
+//   PlaceField.WebsiteUri,
+// ];
 
 var googleCloudPlatform = dotenv.env["googleCloudPlatform"].toString();
 
 Future<List<OpenCoding>> fetchLocation(location) async {
   List<OpenCoding> locationResponse = [];
   var openWeatherAPI = dotenv.env["openWeatherAPI"];
-  var url =
-      "https://api.openweathermap.org/geo/1.0/direct?q=$location&limit=5&appid=$openWeatherAPI";
+  var url = "https://api.openweathermap.org/geo/1.0/direct?q=$location&limit=5&appid=$openWeatherAPI";
 
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
@@ -78,8 +76,7 @@ Future<Model> fetchForecast(coordinates) async {
   var openWeatherAPI = dotenv.env["openWeatherAPI"];
   var units = tempCheck ? "imperial" : "metric";
   var lang = "en";
-  var url =
-      "https://api.openweathermap.org/data/2.5/onecall?$coordinates&exclude=minutely&appid=$openWeatherAPI&units=$units&lang=$lang";
+  var url = "https://api.openweathermap.org/data/2.5/onecall?$coordinates&exclude=minutely&appid=$openWeatherAPI&units=$units&lang=$lang";
 
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
@@ -93,17 +90,13 @@ Future<Model> fetchForecast(coordinates) async {
 }
 
 void savePreferences() {
-  List<String> spList = sharedPreferencesList
-      .map((item) => convert.jsonEncode(item.toJson()))
-      .toList();
+  List<String> spList = sharedPreferencesList.map((item) => convert.jsonEncode(item.toJson())).toList();
   sharedPreferencesInstance.setStringList('location', spList);
 }
 
 Future loadPreferences() async {
   List<String>? spList = sharedPreferencesInstance.getStringList('location');
-  sharedPreferencesList =
-      spList?.map((e) => SharedPref.fromJson(convert.jsonDecode(e))).toList() ??
-          [];
+  sharedPreferencesList = spList?.map((e) => SharedPref.fromJson(convert.jsonDecode(e))).toList() ?? [];
 }
 
 void addLocationValue(SharedPref value) {
@@ -127,12 +120,9 @@ Future findLocation(coordinates, name) async {
             main: forecastResponse.current.weather.first.main,
             moon_phase: forecastResponse.daily.first.moon_phase.toString(),
             timezone: forecastResponse.timezone,
-            dt: currentTime(forecastResponse.current.dt.toInt(),
-                forecastResponse.timezone.toString()),
+            dt: currentTime(forecastResponse.current.dt.toInt(), forecastResponse.timezone.toString()),
             name: name,
-            isDaytime: forecastResponse.current.weather.first.icon.contains('d')
-                ? true
-                : false,
+            isDaytime: forecastResponse.current.weather.first.icon.contains('d') ? true : false,
             index: 0,
           ),
         );
@@ -158,13 +148,9 @@ Future findLocation(coordinates, name) async {
               main: forecastResponse.current.weather.first.main,
               moon_phase: forecastResponse.daily.first.moon_phase.toString(),
               timezone: forecastResponse.timezone,
-              dt: currentTime(forecastResponse.current.dt.toInt(),
-                  forecastResponse.timezone.toString()),
+              dt: currentTime(forecastResponse.current.dt.toInt(), forecastResponse.timezone.toString()),
               name: name,
-              isDaytime:
-                  forecastResponse.current.weather.first.icon.contains('d')
-                      ? true
-                      : false,
+              isDaytime: forecastResponse.current.weather.first.icon.contains('d') ? true : false,
               index: sharedPreferencesList.length,
             ),
           );
@@ -187,21 +173,13 @@ Future initSharedPreferences() async {
         sharedPreferencesList[i].coordinates,
       ).then(
         (forecastResponse) {
-          sharedPreferencesList[i].icon =
-              forecastResponse.current.weather.first.icon;
-          sharedPreferencesList[i].main =
-              forecastResponse.current.weather.first.main;
-          sharedPreferencesList[i].temp =
-              forecastResponse.current.temp.ceil().toString();
+          sharedPreferencesList[i].icon = forecastResponse.current.weather.first.icon;
+          sharedPreferencesList[i].main = forecastResponse.current.weather.first.main;
+          sharedPreferencesList[i].temp = forecastResponse.current.temp.ceil().toString();
           sharedPreferencesList[i].timezone = forecastResponse.timezone;
 
-          sharedPreferencesList[i].dt = currentTime(
-              forecastResponse.current.dt.toInt(),
-              sharedPreferencesList[i].timezone.toString());
-          sharedPreferencesList[i].isDaytime =
-              forecastResponse.current.weather.first.icon.contains('d')
-                  ? true
-                  : false;
+          sharedPreferencesList[i].dt = currentTime(forecastResponse.current.dt.toInt(), sharedPreferencesList[i].timezone.toString());
+          sharedPreferencesList[i].isDaytime = forecastResponse.current.weather.first.icon.contains('d') ? true : false;
           hourlyList.add(forecastResponse.hourly);
           dailyList.add(forecastResponse.daily);
         },
