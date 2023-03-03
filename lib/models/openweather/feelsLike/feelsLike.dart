@@ -12,7 +12,6 @@ class FeelsLike {
     required this.eve,
     required this.morn,
   });
-  factory FeelsLike.fromJson(Map<String, dynamic> json) =>
-      _$FeelsLikeFromJson(json);
+  factory FeelsLike.fromJson(Map<String, dynamic> json) => _$FeelsLikeFromJson(json);
   Map<String, dynamic> toJson() => _$FeelsLikeToJson(this);
 }

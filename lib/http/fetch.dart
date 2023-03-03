@@ -17,8 +17,8 @@ List<List<Hourly>> hourlyList = [];
 List<List<Daily>> dailyList = [];
 final hourlyListProvider = StateProvider((_) => hourlyList);
 final dailyListProvider = StateProvider((_) => dailyList);
-late SharedPreferences sharedPreferencesInstance;
 final Future<SharedPreferences> _sharedPreferencesInstance = SharedPreferences.getInstance();
+late SharedPreferences sharedPreferencesInstance;
 
 bool tempCheck = true;
 
@@ -176,21 +176,21 @@ String hourlyTime(int dt, String timezone) {
   DateTime local = DateTime.fromMillisecondsSinceEpoch(dt * 1000);
   final locationTime = TZDateTime.from(local, getLocation(timezone));
   String? result;
-  print("locationTime: $locationTime");
+
   var reversed = reverseStringUsingSplit(locationTime.toString());
   if (reversed.contains("+")) {
     var index = reversed.indexOf("+");
     var string = reversed.substring(index + 1, reversed.length);
     result = reverseStringUsingSplit(string);
-    // print(result);
+    //
   } else if (reversed.contains("-")) {
     var index = reversed.indexOf("-");
     var string = reversed.substring(index + 1, reversed.length);
     result = reverseStringUsingSplit(string);
   }
-  print(result);
+
   var locationFormat = DateFormat("h a").format(DateTime.parse(result!));
-  print(locationFormat);
+
   return locationFormat;
 }
 

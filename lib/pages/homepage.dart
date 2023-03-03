@@ -29,7 +29,6 @@ class _HomePageState extends State<HomePage> {
     initSharedPreferences().then((_) => setState(() {}));
   }
 
-
   final TextEditingController _addressController = TextEditingController();
   // Main listResults = Main();
 
