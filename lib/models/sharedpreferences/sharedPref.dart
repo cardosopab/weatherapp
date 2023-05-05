@@ -4,17 +4,8 @@ part 'sharedPref.g.dart';
 
 @JsonSerializable()
 class SharedPref {
-  String? icon,
-      name,
-      description,
-      main,
-      humidity,
-      temp,
-      dt,
-      moon_phase,
-      coordinates,
-      timezone;
-  int? index;
+  String? icon, name, description, main, humidity, temp, dt, moon_phase, coordinates, timezone;
+  // int? index;
 
   bool? isDaytime;
 
@@ -28,11 +19,10 @@ class SharedPref {
     this.moon_phase,
     this.isDaytime,
     this.coordinates,
-    this.index,
+    // this.index,
     this.dt,
     this.timezone,
   });
-  factory SharedPref.fromJson(Map<String, dynamic> json) =>
-      _$SharedPrefFromJson(json);
+  factory SharedPref.fromJson(Map<String, dynamic> json) => _$SharedPrefFromJson(json);
   Map<String, dynamic> toJson() => _$SharedPrefToJson(this);
 }

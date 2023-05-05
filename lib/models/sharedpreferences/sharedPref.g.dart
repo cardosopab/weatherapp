@@ -16,7 +16,6 @@ SharedPref _$SharedPrefFromJson(Map<String, dynamic> json) => SharedPref(
       moon_phase: json['moon_phase'] as String?,
       isDaytime: json['isDaytime'] as bool?,
       coordinates: json['coordinates'] as String?,
-      index: json['index'] as int?,
       dt: json['dt'] as String?,
       timezone: json['timezone'] as String?,
     );
@@ -33,6 +32,5 @@ Map<String, dynamic> _$SharedPrefToJson(SharedPref instance) =>
       'moon_phase': instance.moon_phase,
       'coordinates': instance.coordinates,
       'timezone': instance.timezone,
-      'index': instance.index,
       'isDaytime': instance.isDaytime,
     };

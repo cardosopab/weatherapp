@@ -8,20 +8,20 @@ part 'models.g.dart';
 
 @JsonSerializable()
 class Model {
-  String timezone;
-  double lat, lon, timezone_offset;
-  Current current;
-  List<Hourly> hourly;
-  List<Daily> daily;
+  String? timezone;
+  double? lat, lon, timezone_offset;
+  Current? current;
+  List<Hourly>? hourly;
+  List<Daily>? daily;
 
   Model({
-    required this.lat,
-    required this.lon,
-    required this.timezone,
-    required this.timezone_offset,
-    required this.current,
-    required this.hourly,
-    required this.daily,
+    this.lat,
+    this.lon,
+    this.timezone,
+    this.timezone_offset,
+    this.current,
+    this.hourly,
+    this.daily,
   });
   factory Model.fromJson(Map<String, dynamic> json) => _$ModelFromJson(json);
   Map<String, dynamic> toJson() => _$ModelToJson(this);

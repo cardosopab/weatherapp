@@ -2,17 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:weatherapp/Widgets/glass.dart';
-import 'package:weatherapp/models/openweather/daily/daily.dart';
-import 'package:weatherapp/models/openweather/hourly/hourly.dart';
 import 'package:weatherapp/models/sharedpreferences/sharedPref.dart';
-import '../http/fetch.dart';
+import 'package:weatherapp/utils/services/daily_list.dart';
+import 'package:weatherapp/utils/services/hourly_list.dart';
+import '../utils/services/hourly_time.dart';
 
 var day = const [
-  // Color(0xFF3c9dd0),
-  // Color(0xFF086ca2),
-  // Color(0xFF235b79),
-  // Color(0xFF034569),
-  // Color(0xFF1c3464),
   Color(0xFF1f61cd),
   Color(0xFF3049dd),
   Color(0xFF3755cc),
@@ -27,22 +22,25 @@ var night = const [
   Color(0xFF3a4ca3),
 ];
 
-class WeatherPage extends ConsumerStatefulWidget {
+class LocationPage extends ConsumerStatefulWidget {
   final SharedPref sharedPref;
-  const WeatherPage({Key? key, required this.sharedPref}) : super(key: key);
+  const LocationPage({Key? key, required this.sharedPref}) : super(key: key);
 
   @override
-  _WeatherPageState createState() => _WeatherPageState();
+  _LocationPageState createState() => _LocationPageState();
 }
 
-class _WeatherPageState extends ConsumerState<WeatherPage> {
+class _LocationPageState extends ConsumerState<LocationPage> {
   @override
   Widget build(BuildContext context) {
-    final List<List<Hourly>> hourlyList = ref.watch(hourlyListProvider);
-    final List<List<Daily>> dailyList = ref.watch(dailyListProvider);
+    final hourlyList = ref.watch(hourlyProvider);
+    final dailyList = ref.watch(dailyProvider);
     double blur = 30;
     double opacity = .5;
-    int listIndex = widget.sharedPref.index!;
+    final hourlyItem = hourlyList[widget.sharedPref.name];
+    final dailyItem = dailyList[widget.sharedPref.name];
+
+    // print(listIndex);
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -83,21 +81,21 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(widget.sharedPref.name.toString()),
                                     ),
+                                    // Padding(
+                                    //   padding: const EdgeInsets.all(8.0),
+                                    //   child: Text(
+                                    //     "${hourlyItem!.first.temp.ceil().toString()}°${tempCheck ? 'F' : "C"}",
+                                    //     style: const TextStyle(fontSize: 50),
+                                    //   ),
+                                    // ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        "${hourlyList[listIndex].first.temp.ceil().toString()}°${tempCheck ? 'F' : "C"}",
-                                        style: const TextStyle(fontSize: 50),
-                                      ),
+                                      child: Text(hourlyItem!.first.weather.first.main),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(hourlyList[listIndex].first.weather.first.main),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        "H:${dailyList[listIndex].first.temp.max.ceil().toString()}° L:${dailyList[listIndex].first.temp.min.ceil().toString()}°",
+                                        "H:${dailyItem!.first.temp.max.ceil().toString()}° L:${dailyItem!.first.temp.min.ceil().toString()}°",
                                       ),
                                     ),
                                   ],
@@ -106,16 +104,16 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text("HUMIDITY: ${dailyList[listIndex].first.humidity.toString()}%"),
+                                      child: Text("HUMIDITY: ${dailyItem!.first.humidity.toString()}%"),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text("FEELS LIKE: ${hourlyList[listIndex].first.feels_like.toString()}°"),
+                                      child: Text("FEELS LIKE: ${hourlyItem!.first.feels_like.toString()}°"),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text("WIND SPEED: ${hourlyList[listIndex].first.wind_speed.toString()} ${tempCheck ? "MPH" : "KPH"}"),
-                                    ),
+                                    // Padding(
+                                    //   padding: const EdgeInsets.all(8.0),
+                                    //   child: Text("WIND SPEED: ${hourlyItem!.first.wind_speed.toString()} ${tempCheck ? "MPH" : "KPH"}"),
+                                    // ),
                                   ],
                                 )
                               ],
@@ -163,16 +161,16 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
                                       children: [
-                                        Text(hourlyTime(hourlyList[listIndex][index].dt.toInt(), widget.sharedPref.timezone.toString())),
+                                        Text(hourlyTime(hourlyItem![index].dt.toInt(), widget.sharedPref.timezone.toString())),
                                         Padding(
                                           padding: const EdgeInsets.all(4.0),
                                           child: CircleAvatar(
                                             backgroundColor: Colors.transparent,
-                                            backgroundImage: AssetImage("assets/images/${hourlyList[listIndex][index].weather.first.icon}.png"),
+                                            backgroundImage: AssetImage("assets/images/${hourlyItem![index].weather.first.icon}.png"),
                                           ),
                                         ),
                                         Text(
-                                          '${hourlyList[listIndex][index].temp.ceil().toString()}°',
+                                          '${hourlyItem![index].temp.ceil().toString()}°',
                                         ),
                                       ],
                                     ),
@@ -255,7 +253,7 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                             ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: dailyList[listIndex].length,
+                              itemCount: dailyItem!.length,
                               itemBuilder: (context, index) => Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
@@ -264,7 +262,7 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                     child: Text(
                                       DateFormat("E").format(
                                         DateTime.fromMillisecondsSinceEpoch(
-                                          dailyList[listIndex][index].dt.toInt() * 1000,
+                                          dailyItem![index].dt.toInt() * 1000,
                                         ),
                                       ),
                                     ),
@@ -274,32 +272,32 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                                     child: CircleAvatar(
                                       backgroundColor: Colors.transparent,
                                       backgroundImage: NetworkImage(
-                                        "https://openweathermap.org/img/wn/${dailyList[listIndex][index].weather.first.icon}.png",
+                                        "https://openweathermap.org/img/wn/${dailyItem![index].weather.first.icon}.png",
                                       ),
                                     ),
                                   ),
                                   SizedBox(
                                     width: 30,
                                     child: Text(
-                                      "${dailyList[listIndex][index].temp.morn.ceil().toString()}°",
+                                      "${dailyItem![index].temp.morn.ceil().toString()}°",
                                     ),
                                   ),
                                   SizedBox(
                                     width: 30,
                                     child: Text(
-                                      "${dailyList[listIndex][index].temp.day.ceil().toString()}°",
+                                      "${dailyItem![index].temp.day.ceil().toString()}°",
                                     ),
                                   ),
                                   SizedBox(
                                     width: 30,
                                     child: Text(
-                                      "${dailyList[listIndex][index].temp.eve.ceil().toString()}°",
+                                      "${dailyItem![index].temp.eve.ceil().toString()}°",
                                     ),
                                   ),
                                   SizedBox(
                                     width: 30,
                                     child: Text(
-                                      "${dailyList[listIndex][index].temp.night.ceil().toString()}°",
+                                      "${dailyItem![index].temp.night.ceil().toString()}°",
                                     ),
                                   ),
                                 ],

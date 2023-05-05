@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'pages/homepage.dart';
+import 'pages/home_page.dart';
 
 void main() async {
   tz.initializeTimeZones();
