@@ -3,15 +3,16 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/material.dart';
-import 'package:weatherapp/Widgets/glass.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:weatherapp/models/sharedpreferences/sharedPref.dart';
+import 'package:weatherapp/models/location/location.dart';
 import 'package:weatherapp/pages/location_page.dart';
-import 'package:weatherapp/utils/services/daily_list.dart';
-import 'package:weatherapp/utils/services/hourly_list.dart';
-import 'package:weatherapp/utils/services/location_fetch.dart';
 import 'package:weatherapp/utils/services/geocoding_list.dart';
 import 'package:weatherapp/utils/services/location_list.dart';
+import 'package:weatherapp/utils/services/temp_unit.dart';
+
+import '../my_icons_icons.dart';
+import '../utils/functions/format_unit.dart';
+import '../widgets/glass.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({
@@ -25,17 +26,6 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   Timer? _debounce;
 
-  @override
-  void initState() {
-    super.initState();
-    // final locationList = ref.watch(locationStateNotifierProvider);
-    // for (final location in locationList) {
-    //   print(location);
-    //   // ref.read(locationStateNotifierProvider.notifier).updateLocation(location.name, location.coordinates, location.index, ref);
-    // }
-    // print(locationList.length);
-  }
-
   final TextEditingController _addressController = TextEditingController();
 
   void clear() {
@@ -46,8 +36,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final geocodingList = ref.watch(geoCodingProvider);
-    // final locationList = ref.watch(locationStateNotifierProvider);
     final locationFuture = ref.watch(locationFutureProvider);
+    final tempUnit = ref.watch(tempUnitStateNotifierProvider);
 
     return Scaffold(
       body: Container(
@@ -68,34 +58,30 @@ class _HomePageState extends ConsumerState<HomePage> {
         child: SafeArea(
           child: CustomScrollView(
             slivers: [
-              // SliverAppBar(
-              //   elevation: 0,
-              //   backgroundColor: Colors.transparent,
-              //   centerTitle: true,
-              //   actions: [
-              // Padding(
-              // padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
-              // child: IconButton(
-              // onPressed: () {
-              // hourlyList.clear();
-              // dailyList.clear();
-              // tempCheck = !tempCheck;
-              // sharedPreferencesInstance.setBool('tempCheck', tempCheck);
-              // initSharedPreferences().then((_) => setState(() {}));
-              //   },
-              //   icon: tempCheck
-              //       ? const Icon(
-              //           MyIcons.celcius,
-              //           size: 40,
-              //         )
-              //       : const Icon(
-              //           MyIcons.fahrenheit,
-              //           size: 40,
-              //         ),
-              // ),
-              // ),
-              // ],
-              // ),
+              SliverAppBar(
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                centerTitle: true,
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+                    child: IconButton(
+                      onPressed: () {
+                        ref.read(tempUnitStateNotifierProvider.notifier).saveTempUnit();
+                      },
+                      icon: tempUnit
+                          ? const Icon(
+                              MyIcons.celcius,
+                              size: 40,
+                            )
+                          : const Icon(
+                              MyIcons.fahrenheit,
+                              size: 40,
+                            ),
+                    ),
+                  ),
+                ],
+              ),
               SliverList(
                 delegate: SliverChildListDelegate(
                   [
@@ -174,14 +160,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                     locationFuture.when(
                       data: (locationFuture) {
-                        List<SharedPref> locationList = locationFuture.map((e) => e).toList();
+                        List<Location> locationList = locationFuture.map((e) => e).toList();
                         return ListView.builder(
                           reverse: true,
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: locationList.length,
                           itemBuilder: (context, index) {
-                            final sharedListIndex = locationList[index];
+                            final location = locationList[index];
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: GestureDetector(
@@ -189,15 +175,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: ((context) => LocationPage(sharedPref: sharedListIndex)),
+                                      builder: ((context) => LocationPage(location: location)),
                                     ),
                                   );
-                                  print(index);
-                                  print(sharedListIndex.temp.toString());
-                                  final hourlyList = ref.watch(hourlyProvider);
-                                  final dailyList = ref.watch(dailyProvider);
-                                  print(hourlyList[sharedListIndex.name]?[0].temp);
-                                  print(dailyList[sharedListIndex.name]?[0].humidity);
                                 }),
                                 child: Slidable(
                                   key: const ValueKey(0),
@@ -216,7 +196,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     ],
                                   ),
                                   child: GlassMorphism(
-                                    isDaytime: sharedListIndex.isDaytime,
+                                    isDaytime: location.isDaytime,
                                     blur: 30,
                                     opacity: .5,
                                     child: Row(
@@ -229,11 +209,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               Padding(
                                                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
                                                 child: Text(
-                                                  sharedListIndex.name.toString(),
+                                                  location.name.toString(),
                                                   style: const TextStyle(fontSize: 25),
                                                 ),
                                               ),
-                                              Text(sharedListIndex.main.toString(), style: const TextStyle(fontSize: 20)),
+                                              Text(location.main.toString(), style: const TextStyle(fontSize: 20)),
                                             ],
                                           ),
                                         ),
@@ -242,8 +222,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                             Padding(
                                               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
                                               child: Text(
-                                                '${sharedListIndex.temp} ',
-                                                // °${tempCheck ? 'F' : "C"}',
+                                                '${formatUnit(location.temp!, ref)}°${tempUnit ? 'F' : "C"}',
                                                 style: const TextStyle(fontSize: 25),
                                               ),
                                             ),
@@ -252,8 +231,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                               height: 20,
                                               decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                image:
-                                                    DecorationImage(image: AssetImage("assets/images/${sharedListIndex.icon}.png"), fit: BoxFit.none),
+                                                image: DecorationImage(image: AssetImage("assets/images/${location.icon}.png"), fit: BoxFit.none),
                                               ),
                                             ),
                                           ],

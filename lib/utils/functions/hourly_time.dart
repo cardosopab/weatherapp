@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:timezone/timezone.dart';
 
-import '../functions/reverse_string.dart';
+import 'reverse_string.dart';
 
 String hourlyTime(int dt, String timezone) {
   DateTime local = DateTime.fromMillisecondsSinceEpoch(dt * 1000);

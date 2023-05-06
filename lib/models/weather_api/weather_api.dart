@@ -1,13 +1,13 @@
-class Weather {
-  late double lat;
-  late double lon;
+class WeatherAPI {
+  late var lat;
+  late var lon;
   late String timezone;
-  late int timezoneOffset;
+  late var timezoneOffset;
   late Current current;
   late List<Hourly> hourly;
   late List<Daily> daily;
 
-  Weather(
+  WeatherAPI(
       {required this.lat,
       required this.lon,
       required this.timezone,
@@ -16,7 +16,7 @@ class Weather {
       required this.hourly,
       required this.daily});
 
-  Weather.fromJson(Map<String, dynamic> json) {
+  WeatherAPI.fromJson(Map<String, dynamic> json) {
     lat = json['lat'];
     lon = json['lon'];
     timezone = json['timezone'];
@@ -37,7 +37,7 @@ class Weather {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['lat'] = lat;
     data['lon'] = lon;
     data['timezone'] = timezone;
@@ -50,19 +50,20 @@ class Weather {
 }
 
 class Current {
-  late int dt;
-  late int sunrise;
-  late int sunset;
-  late double temp;
-  late double feelsLike;
-  late int pressure;
-  late int humidity;
-  late double dewPoint;
-  late int uvi;
-  late int clouds;
-  late int visibility;
-  late double windSpeed;
-  late int windDeg;
+  late var dt;
+  late var sunrise;
+  late var sunset;
+  late var temp;
+  late var feelsLike;
+  late var pressure;
+  late var humidity;
+  late var dewPoint;
+  late var uvi;
+  late var clouds;
+  late var visibility;
+  late var windSpeed;
+  late var windDeg;
+
   late List<Weather> weather;
 
   Current(
@@ -104,7 +105,7 @@ class Current {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['dt'] = dt;
     data['sunrise'] = sunrise;
     data['sunset'] = sunset;
@@ -123,46 +124,47 @@ class Current {
   }
 }
 
-// class Weather {
-//   late int id;
-//   late String main;
-//   late String description;
-//   late String icon;
+class Weather {
+  late var id;
+  late String main;
+  late String description;
+  late String icon;
 
-//   Weather({required this.id, required this.main, required this.description, required this.icon});
+  Weather({required this.id, required this.main, required this.description, required this.icon});
 
-//   Weather.fromJson(Map<String, dynamic> json) {
-//     id = json['id'];
-//     main = json['main'];
-//     description = json['description'];
-//     icon = json['icon'];
-//   }
+  Weather.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    main = json['main'];
+    description = json['description'];
+    icon = json['icon'];
+  }
 
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> data = Map<String, dynamic>();
-//     data['id'] = required this.id;
-//     data['main'] = required this.main;
-//     data['description'] = required this.description;
-//     data['icon'] = required this.icon;
-//     return data;
-//   }
-// }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['id'] = id;
+    data['main'] = main;
+    data['description'] = description;
+    data['icon'] = icon;
+    return data;
+  }
+}
 
 class Hourly {
-  late int dt;
-  late double temp;
-  late double feelsLike;
-  late int pressure;
-  late int humidity;
-  late double dewPoint;
-  late double uvi;
-  late int clouds;
-  late int visibility;
-  late double windSpeed;
-  late int windDeg;
-  late double windGust;
+  late var dt;
+  late var temp;
+  late var feelsLike;
+  late var pressure;
+  late var humidity;
+  late var dewPoint;
+  late var uvi;
+  late var clouds;
+  late var visibility;
+  late var windSpeed;
+  late var windDeg;
+  late var windGust;
+  late var pop;
+
   late List<Weather> weather;
-  late int pop;
 
   Hourly(
       {required this.dt,
@@ -203,7 +205,7 @@ class Hourly {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['dt'] = dt;
     data['temp'] = temp;
     data['feels_like'] = feelsLike;
@@ -223,25 +225,25 @@ class Hourly {
 }
 
 class Daily {
-  late int dt;
-  late int sunrise;
-  late int sunset;
-  late int moonrise;
-  late int moonset;
-  late double moonPhase;
+  late var dt;
+  late var sunrise;
+  late var sunset;
+  late var moonrise;
+  late var moonset;
+  late var moonPhase;
   late Temp temp;
   late FeelsLike feelsLike;
-  late int pressure;
-  late int humidity;
-  late double dewPoint;
-  late double windSpeed;
-  late int windDeg;
-  late double windGust;
+  late var pressure;
+  late var humidity;
+  late var dewPoint;
+  late var windSpeed;
+  late var windDeg;
+  late var windGust;
   late List<Weather> weather;
-  late int clouds;
-  late double pop;
-  late double uvi;
-  late double rain;
+  late var clouds;
+  late var pop;
+  late var uvi;
+  late var rain;
 
   Daily(
       {required this.dt,
@@ -294,7 +296,7 @@ class Daily {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['dt'] = dt;
     data['sunrise'] = sunrise;
     data['sunset'] = sunset;
@@ -319,12 +321,12 @@ class Daily {
 }
 
 class Temp {
-  late double day;
-  late double min;
-  late double max;
-  late double night;
-  late double eve;
-  late double morn;
+  late var day;
+  late var min;
+  late var max;
+  late var night;
+  late var eve;
+  late var morn;
 
   Temp({required this.day, required this.min, required this.max, required this.night, required this.eve, required this.morn});
 
@@ -338,7 +340,7 @@ class Temp {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['day'] = day;
     data['min'] = min;
     data['max'] = max;
@@ -350,10 +352,10 @@ class Temp {
 }
 
 class FeelsLike {
-  late double day;
-  late double night;
-  late double eve;
-  late double morn;
+  late var day;
+  late var night;
+  late var eve;
+  late var morn;
 
   FeelsLike({required this.day, required this.night, required this.eve, required this.morn});
 
@@ -365,7 +367,7 @@ class FeelsLike {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['day'] = day;
     data['night'] = night;
     data['eve'] = eve;

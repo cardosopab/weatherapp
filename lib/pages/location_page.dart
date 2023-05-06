@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:weatherapp/Widgets/glass.dart';
-import 'package:weatherapp/models/sharedpreferences/sharedPref.dart';
 import 'package:weatherapp/utils/services/daily_list.dart';
 import 'package:weatherapp/utils/services/hourly_list.dart';
-import '../utils/services/hourly_time.dart';
+import '../models/location/location.dart';
+import '../utils/functions/format_unit.dart';
+import '../utils/functions/hourly_time.dart';
+import '../utils/services/temp_unit.dart';
+import '../widgets/glass.dart';
 
 var day = const [
   Color(0xFF1f61cd),
@@ -23,8 +25,8 @@ var night = const [
 ];
 
 class LocationPage extends ConsumerStatefulWidget {
-  final SharedPref sharedPref;
-  const LocationPage({Key? key, required this.sharedPref}) : super(key: key);
+  final Location location;
+  const LocationPage({Key? key, required this.location}) : super(key: key);
 
   @override
   _LocationPageState createState() => _LocationPageState();
@@ -35,17 +37,17 @@ class _LocationPageState extends ConsumerState<LocationPage> {
   Widget build(BuildContext context) {
     final hourlyList = ref.watch(hourlyProvider);
     final dailyList = ref.watch(dailyProvider);
-    double blur = 30;
+    double blur = 35;
     double opacity = .5;
-    final hourlyItem = hourlyList[widget.sharedPref.name];
-    final dailyItem = dailyList[widget.sharedPref.name];
+    final hourlyItem = hourlyList[widget.location.name];
+    final dailyItem = dailyList[widget.location.name];
 
-    // print(listIndex);
+    final tempUnit = ref.watch(tempUnitStateNotifierProvider);
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: widget.sharedPref.isDaytime! ? day : night,
+            colors: widget.location.isDaytime! ? day : night,
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
           ),
@@ -65,7 +67,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(40, 8, 40, 40),
                       child: GlassMorphism(
-                        isDaytime: widget.sharedPref.isDaytime,
+                        isDaytime: widget.location.isDaytime,
                         blur: blur,
                         opacity: opacity,
                         child: Padding(
@@ -79,23 +81,23 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(widget.sharedPref.name.toString()),
-                                    ),
-                                    // Padding(
-                                    //   padding: const EdgeInsets.all(8.0),
-                                    //   child: Text(
-                                    //     "${hourlyItem!.first.temp.ceil().toString()}°${tempCheck ? 'F' : "C"}",
-                                    //     style: const TextStyle(fontSize: 50),
-                                    //   ),
-                                    // ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(hourlyItem!.first.weather.first.main),
+                                      child: Text(widget.location.name!),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        "H:${dailyItem!.first.temp.max.ceil().toString()}° L:${dailyItem!.first.temp.min.ceil().toString()}°",
+                                        "${formatUnit(hourlyItem!.first.temp, ref)}°${tempUnit ? 'F' : "C"}",
+                                        style: const TextStyle(fontSize: 50),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(hourlyItem.first.weather!.first.main!),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "H:${formatUnit(dailyItem!.first.temp!.max, ref)}° L:${formatUnit(dailyItem.first.temp!.min, ref)}°",
                                       ),
                                     ),
                                   ],
@@ -104,16 +106,16 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text("HUMIDITY: ${dailyItem!.first.humidity.toString()}%"),
+                                      child: Text("HUMIDITY: ${dailyItem.first.humidity}%"),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text("FEELS LIKE: ${hourlyItem!.first.feels_like.toString()}°"),
+                                      child: Text("FEELS LIKE: ${formatUnit(hourlyItem.first.feelsLike, ref)}°"),
                                     ),
-                                    // Padding(
-                                    //   padding: const EdgeInsets.all(8.0),
-                                    //   child: Text("WIND SPEED: ${hourlyItem!.first.wind_speed.toString()} ${tempCheck ? "MPH" : "KPH"}"),
-                                    // ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text("WIND SPEED: ${hourlyItem.first.windSpeed} ${tempUnit ? "MPH" : "KPH"}"),
+                                    ),
                                   ],
                                 )
                               ],
@@ -128,7 +130,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(8),
                         child: GlassMorphism(
-                          isDaytime: widget.sharedPref.isDaytime,
+                          isDaytime: widget.location.isDaytime,
                           blur: blur,
                           opacity: opacity,
                           child: Column(
@@ -161,16 +163,16 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
                                       children: [
-                                        Text(hourlyTime(hourlyItem![index].dt.toInt(), widget.sharedPref.timezone.toString())),
+                                        Text(hourlyTime(hourlyItem[index].dt!.toInt(), widget.location.timezone!)),
                                         Padding(
                                           padding: const EdgeInsets.all(4.0),
                                           child: CircleAvatar(
                                             backgroundColor: Colors.transparent,
-                                            backgroundImage: AssetImage("assets/images/${hourlyItem![index].weather.first.icon}.png"),
+                                            backgroundImage: AssetImage("assets/images/${hourlyItem[index].weather!.first.icon}.png"),
                                           ),
                                         ),
                                         Text(
-                                          '${hourlyItem![index].temp.ceil().toString()}°',
+                                          '${formatUnit(hourlyItem[index].temp, ref)}°',
                                         ),
                                       ],
                                     ),
@@ -185,7 +187,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: GlassMorphism(
-                        isDaytime: widget.sharedPref.isDaytime,
+                        isDaytime: widget.location.isDaytime,
                         blur: blur,
                         opacity: opacity,
                         child: Column(
@@ -213,36 +215,36 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: const [
                                 SizedBox(
-                                  width: 30,
+                                  width: 35,
                                   child: Text(""),
                                 ),
                                 SizedBox(
-                                  width: 30,
+                                  width: 35,
                                   child: Text(""),
                                 ),
                                 SizedBox(
-                                  width: 30,
+                                  width: 35,
                                   child: Text(
                                     "MORN",
                                     style: TextStyle(fontSize: 10),
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 30,
+                                  width: 35,
                                   child: Text(
                                     "DAY",
                                     style: TextStyle(fontSize: 10),
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 30,
+                                  width: 35,
                                   child: Text(
                                     "EVE",
                                     style: TextStyle(fontSize: 10),
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 30,
+                                  width: 35,
                                   child: Text(
                                     "NIGHT",
                                     style: TextStyle(fontSize: 10),
@@ -253,16 +255,16 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                             ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: dailyItem!.length,
+                              itemCount: dailyItem.length,
                               itemBuilder: (context, index) => Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
                                   SizedBox(
-                                    width: 30,
+                                    width: 35,
                                     child: Text(
                                       DateFormat("E").format(
                                         DateTime.fromMillisecondsSinceEpoch(
-                                          dailyItem![index].dt.toInt() * 1000,
+                                          dailyItem[index].dt!.toInt() * 1000,
                                         ),
                                       ),
                                     ),
@@ -271,33 +273,33 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                                     width: 40,
                                     child: CircleAvatar(
                                       backgroundColor: Colors.transparent,
-                                      backgroundImage: NetworkImage(
-                                        "https://openweathermap.org/img/wn/${dailyItem![index].weather.first.icon}.png",
+                                      backgroundImage: AssetImage(
+                                        "assets/images/${hourlyItem[index].weather!.first.icon}.png",
                                       ),
                                     ),
                                   ),
                                   SizedBox(
-                                    width: 30,
+                                    width: 35,
                                     child: Text(
-                                      "${dailyItem![index].temp.morn.ceil().toString()}°",
+                                      "${formatUnit(dailyItem[index].temp!.morn, ref)}°",
                                     ),
                                   ),
                                   SizedBox(
-                                    width: 30,
+                                    width: 35,
                                     child: Text(
-                                      "${dailyItem![index].temp.day.ceil().toString()}°",
+                                      "${formatUnit(dailyItem[index].temp!.day, ref)}°",
                                     ),
                                   ),
                                   SizedBox(
-                                    width: 30,
+                                    width: 35,
                                     child: Text(
-                                      "${dailyItem![index].temp.eve.ceil().toString()}°",
+                                      "${formatUnit(dailyItem[index].temp!.eve, ref)}°",
                                     ),
                                   ),
                                   SizedBox(
-                                    width: 30,
+                                    width: 35,
                                     child: Text(
-                                      "${dailyItem![index].temp.night.ceil().toString()}°",
+                                      "${formatUnit(dailyItem[index].temp!.night, ref)}°",
                                     ),
                                   ),
                                 ],

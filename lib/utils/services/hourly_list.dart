@@ -1,22 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../models/openweather/hourly/hourly.dart';
-
-// class HourlyList extends StateNotifier<List<List<Hourly>>> {
-//   HourlyList(List<List<Hourly>> state) : super(state);
-
-//   void addList(newList) {
-//     state = [...state, newList];
-//   }
-
-//   void deleteList() {
-//     state.clear();
-//   }
-// }
-
-// final hourlyProvider = StateNotifierProvider<HourlyList, List<List<Hourly>>>((ref) {
-//   return HourlyList([]);
-// });
+import '../../models/weather_api/weather_api.dart';
 
 class HourlyList extends StateNotifier<Map<String, List<Hourly>>> {
   HourlyList(Map<String, List<Hourly>> state) : super(state);

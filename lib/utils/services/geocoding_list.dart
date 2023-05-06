@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../models/openCoding/result.dart';
-import '../functions/geo_fetch.dart';
+import '../../models/geocoding/geocoding.dart';
+import '../api/geo_fetch.dart';
 
-class GeocodingList extends StateNotifier<List<OpenCoding>> {
-  GeocodingList(List<OpenCoding> state) : super(state);
+class GeocodingList extends StateNotifier<List<GeoCoding>> {
+  GeocodingList(List<GeoCoding> state) : super(state);
 
   Future<void> fetchGeocode(location) async {
     final api = GeoCodingAPI();
@@ -17,6 +17,6 @@ class GeocodingList extends StateNotifier<List<OpenCoding>> {
   }
 }
 
-final geoCodingProvider = StateNotifierProvider<GeocodingList, List<OpenCoding>>((ref) {
+final geoCodingProvider = StateNotifierProvider<GeocodingList, List<GeoCoding>>((ref) {
   return GeocodingList([]);
 });
