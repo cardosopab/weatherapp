@@ -117,32 +117,8 @@ final locationStateNotifierProvider = StateNotifierProvider<LocationNotifier, Li
   return LocationNotifier([], ref);
 });
 
-// final locationListInit = Provider<List<Location>>((ref) {
-//   final locationList = ref.watch(locationStateNotifierProvider);
-
-//   for (final location in locationList) {
-//     final name = location.name;
-//     final coordinates = location.coordinates;
-//     print("locationListInit");
-//     print(name);
-//     print(location.temp);
-
-//     // ref.read(locationStateNotifierProvider.notifier).updateLocation(name, coordinates, ref);
-//   }
-//   return locationList;
-// });
-
 final locationFutureProvider = FutureProvider<List<Location>>((ref) async {
   print('locationFutureProvider');
   final locationList = ref.watch(locationStateNotifierProvider);
-
-  // for (final location in locationList) {
-  //   final name = location.name;
-  //   final coordinates = location.coordinates;
-  //   print("locationListInit");
-  //   print(name);
-  //   print(location.temp);
-  // }
-  // ref.read(locationStateNotifierProvider.notifier).updateLocation(locationList, ref);
   return locationList;
 });

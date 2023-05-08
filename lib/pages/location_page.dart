@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:weatherapp/utils/services/daily_list.dart';
 import 'package:weatherapp/utils/services/hourly_list.dart';
+import 'package:weatherapp/utils/services/location_list.dart';
 import '../models/location/location.dart';
 import '../utils/functions/format_unit.dart';
 import '../utils/functions/hourly_time.dart';
@@ -39,15 +40,18 @@ class _LocationPageState extends ConsumerState<LocationPage> {
     final dailyList = ref.watch(dailyProvider);
     double blur = 35;
     double opacity = .5;
-    final hourlyItem = hourlyList[widget.location.name];
-    final dailyItem = dailyList[widget.location.name];
+    Location location = widget.location;
+    final hourlyItem = hourlyList[location.name];
+    final dailyItem = dailyList[location.name];
 
     final tempUnit = ref.watch(tempUnitStateNotifierProvider);
+    final locationList = ref.watch(locationStateNotifierProvider);
+    final index = locationList.indexOf(location);
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: widget.location.isDaytime! ? day : night,
+            colors: location.isDaytime! ? day : night,
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
           ),
@@ -60,6 +64,14 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                 backgroundColor: Colors.transparent,
                 centerTitle: true,
                 leading: IconButton(onPressed: (() => Navigator.pop(context)), icon: const Icon(Icons.arrow_back_ios)),
+                actions: [
+                  IconButton(
+                      onPressed: (() {
+                        ref.read(locationStateNotifierProvider.notifier).removeAt(index);
+                        Navigator.pop(context);
+                      }),
+                      icon: const Icon(Icons.cancel))
+                ],
               ),
               SliverList(
                 delegate: SliverChildListDelegate(
@@ -67,7 +79,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(40, 8, 40, 40),
                       child: GlassMorphism(
-                        isDaytime: widget.location.isDaytime,
+                        isDaytime: location.isDaytime,
                         blur: blur,
                         opacity: opacity,
                         child: Padding(
@@ -81,7 +93,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(widget.location.name!),
+                                      child: Text(location.name!),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
@@ -130,7 +142,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(8),
                         child: GlassMorphism(
-                          isDaytime: widget.location.isDaytime,
+                          isDaytime: location.isDaytime,
                           blur: blur,
                           opacity: opacity,
                           child: Column(
@@ -163,7 +175,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
                                       children: [
-                                        Text(hourlyTime(hourlyItem[index].dt!.toInt(), widget.location.timezone!)),
+                                        Text(hourlyTime(hourlyItem[index].dt!.toInt(), location.timezone!)),
                                         Padding(
                                           padding: const EdgeInsets.all(4.0),
                                           child: CircleAvatar(
@@ -187,7 +199,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: GlassMorphism(
-                        isDaytime: widget.location.isDaytime,
+                        isDaytime: location.isDaytime,
                         blur: blur,
                         opacity: opacity,
                         child: Column(

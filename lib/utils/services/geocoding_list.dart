@@ -14,6 +14,7 @@ class GeocodingList extends StateNotifier<List<GeoCoding>> {
 
   void deleteList() {
     state.clear();
+    state = state.toList();
   }
 }
 

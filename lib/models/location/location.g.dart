@@ -12,7 +12,7 @@ Location _$LocationFromJson(Map<String, dynamic> json) => Location(
       description: json['description'] as String?,
       main: json['main'] as String?,
       humidity: json['humidity'] as String?,
-      temp: (json['temp'] as num?)?.toDouble(),
+      temp: json['temp'],
       moon_phase: json['moon_phase'] as String?,
       isDaytime: json['isDaytime'] as bool?,
       coordinates: json['coordinates'] as String?,

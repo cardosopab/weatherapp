@@ -24,7 +24,7 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  Timer? _debounce;
+  // Timer? _debounce;
 
   final TextEditingController _addressController = TextEditingController();
 
@@ -38,7 +38,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final geocodingList = ref.watch(geoCodingProvider);
     final locationFuture = ref.watch(locationFutureProvider);
     final tempUnit = ref.watch(tempUnitStateNotifierProvider);
-
+    final locationList = ref.watch(locationStateNotifierProvider);
     return Scaffold(
       body: Container(
         height: MediaQuery.of(context).size.height,
@@ -129,18 +129,18 @@ class _HomePageState extends ConsumerState<HomePage> {
                         controller: _addressController,
                         onSubmitted: (_addressController) async {
                           if (_addressController.isNotEmpty) {
-                            ref.watch(geoCodingProvider.notifier).fetchGeocode(_addressController);
+                            await ref.watch(geoCodingProvider.notifier).fetchGeocode(_addressController);
                             clear();
                           }
                         },
                         onChanged: (value) {
-                          if (_debounce?.isActive ?? false) _debounce!.cancel();
-                          _debounce = Timer(const Duration(milliseconds: 1000), () {
-                            if (value.isNotEmpty) {
-                            } else {
-                              clear();
-                            }
-                          });
+                          // if (_debounce?.isActive ?? false) _debounce!.cancel();
+                          // _debounce = Timer(const Duration(milliseconds: 1000), () {
+                          //   if (value.isNotEmpty) {
+                          //   } else {
+                          //     clear();
+                          //   }
+                          // });
                         },
                       ),
                     ),
@@ -149,13 +149,35 @@ class _HomePageState extends ConsumerState<HomePage> {
                       itemCount: geocodingList.length,
                       itemBuilder: (BuildContext context, int index) {
                         return ListTile(
-                            title: Text("${geocodingList[index].name}, ${geocodingList[index].country}, ${geocodingList[index].state ?? ''}"),
-                            onTap: () async {
-                              final coordinates = "lat=${geocodingList[index].lat}&lon=${geocodingList[index].lon}";
+                          title: Text("${geocodingList[index].name}, ${geocodingList[index].country}, ${geocodingList[index].state ?? ''}"),
+                          onTap: () async {
+                            final coordinates = "lat=${geocodingList[index].lat}&lon=${geocodingList[index].lon}";
+                            Set<Location> locationSet = Set<Location>.from(locationList);
+                            bool inList = locationSet.any((l) => l.coordinates == coordinates);
+                            if (inList) {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Notice'),
+                                      content: const Text('That location is already in your list.'),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: const Text('OK'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  });
+                            } else {
                               final name = geocodingList[index].name;
                               ref.watch(locationStateNotifierProvider.notifier).fetchLocation(name, coordinates, ref);
-                              ref.read(geoCodingProvider.notifier).deleteList();
-                            });
+                            }
+                            ref.read(geoCodingProvider.notifier).deleteList();
+                          },
+                        );
                       },
                     ),
                     locationFuture.when(

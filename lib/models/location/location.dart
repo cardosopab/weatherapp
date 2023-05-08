@@ -6,7 +6,7 @@ part 'location.g.dart';
 class Location {
   String? icon, name, description, main, humidity, dt, moon_phase, coordinates, timezone;
 
-  double? temp;
+  var temp;
 
   bool? isDaytime;
 
