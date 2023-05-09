@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'contants.dart';
 import 'pages/home_page.dart';
 
 void main() async {
@@ -34,6 +35,15 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         brightness: Brightness.dark,
         fontFamily: 'Roboto',
+        scaffoldBackgroundColor: Constants().blue,
+        textButtonTheme: const TextButtonThemeData(
+          style: ButtonStyle(
+            foregroundColor: MaterialStatePropertyAll(Colors.white),
+          ),
+        ),
+        dialogTheme: DialogTheme(
+          backgroundColor: Constants().blue,
+        ),
       ),
       home: const HomePage(),
     );
