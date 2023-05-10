@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:weatherapp/utils/ui/home_page/home_geocoding_list.dart';
+import 'package:weatherapp/utils/ui/home_page/body/home_geocoding_list.dart';
 
-import 'home_footer.dart';
-import 'home_location_list.dart';
-import 'home_search.dart';
-import 'home_title.dart';
+import 'body/home_footer.dart';
+import 'body/home_location_list.dart';
+import 'body/home_search.dart';
+import 'body/home_title.dart';
 
 class HomeBody extends HookConsumerWidget {
   const HomeBody({super.key});

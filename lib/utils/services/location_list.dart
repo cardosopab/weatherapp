@@ -29,17 +29,17 @@ class LocationNotifier extends StateNotifier<List<Location>> {
       ref.read(hourlyProvider.notifier).addList(locationList[i].name, newLocation.hourly);
       ref.read(dailyProvider.notifier).addList(locationList[i].name, newLocation.daily);
       locationList[i] = Location(
-        icon: newLocation.current!.weather!.first.icon,
-        description: newLocation.current!.weather!.first.description,
-        temp: newLocation.current!.temp,
+        icon: newLocation.current.weather.first.icon,
+        description: newLocation.current.weather.first.description,
+        temp: newLocation.current.temp,
         coordinates: locationList[i].coordinates,
-        humidity: newLocation.daily!.first.humidity.toString(),
-        main: newLocation.current!.weather!.first.main,
-        moon_phase: newLocation.daily!.first.moonPhase.toString(),
+        humidity: newLocation.daily.first.humidity.toString(),
+        main: newLocation.current.weather.first.main,
+        moon_phase: newLocation.daily.first.moonPhase.toString(),
         timezone: newLocation.timezone,
-        dt: currentTime(newLocation.current!.dt!.toInt(), newLocation.timezone.toString()),
+        dt: currentTime(newLocation.current.dt!.toInt(), newLocation.timezone.toString()),
         name: locationList[i].name,
-        isDaytime: newLocation.current!.weather!.first.icon!.contains('d') ? true : false,
+        isDaytime: newLocation.current.weather.first.icon.contains('d') ? true : false,
       );
     }
     state = locationList.toList();
@@ -48,21 +48,21 @@ class LocationNotifier extends StateNotifier<List<Location>> {
   Future<void> fetchLocation(name, coordinates, WidgetRef ref) async {
     final api = LocationAPI();
     final newLocation = await api.locationFetch(coordinates);
-    print('hourly ${newLocation.hourly![0].temp}');
-    ref.read(hourlyProvider.notifier).addList(name, newLocation.hourly!);
-    ref.read(dailyProvider.notifier).addList(name, newLocation.daily!);
+    print('hourly ${newLocation.hourly[0].temp}');
+    ref.read(hourlyProvider.notifier).addList(name, newLocation.hourly);
+    ref.read(dailyProvider.notifier).addList(name, newLocation.daily);
     addLocation(Location(
-      icon: newLocation.current!.weather!.first.icon,
-      description: newLocation.current!.weather!.first.description,
-      temp: newLocation.current!.temp,
+      icon: newLocation.current.weather.first.icon,
+      description: newLocation.current.weather.first.description,
+      temp: newLocation.current.temp,
       coordinates: coordinates,
-      humidity: newLocation.daily!.first.humidity.toString(),
-      main: newLocation.current!.weather!.first.main,
-      moon_phase: newLocation.daily!.first.moonPhase.toString(),
+      humidity: newLocation.daily.first.humidity.toString(),
+      main: newLocation.current.weather.first.main,
+      moon_phase: newLocation.daily.first.moonPhase.toString(),
       timezone: newLocation.timezone,
-      dt: currentTime(newLocation.current!.dt!.toInt(), newLocation.timezone.toString()),
+      dt: currentTime(newLocation.current.dt!.toInt(), newLocation.timezone.toString()),
       name: name,
-      isDaytime: newLocation.current!.weather!.first.icon!.contains('d') ? true : false,
+      isDaytime: newLocation.current.weather.first.icon.contains('d') ? true : false,
     ));
   }
 
@@ -90,21 +90,21 @@ class LocationNotifier extends StateNotifier<List<Location>> {
       for (final data in locationsData) {
         Location location = Location.fromJson(data);
         final newLocation = await api.locationFetch(location.coordinates);
-        print('hourly ${newLocation.hourly![0].temp}');
-        _ref.read(hourlyProvider.notifier).addList(location.name!, newLocation.hourly!);
-        _ref.read(dailyProvider.notifier).addList(location.name!, newLocation.daily!);
+        print('hourly ${newLocation.hourly[0].temp}');
+        _ref.read(hourlyProvider.notifier).addList(location.name!, newLocation.hourly);
+        _ref.read(dailyProvider.notifier).addList(location.name!, newLocation.daily);
         location = Location(
-          icon: newLocation.current!.weather!.first.icon,
-          description: newLocation.current!.weather!.first.description,
-          temp: newLocation.current!.temp,
+          icon: newLocation.current.weather.first.icon,
+          description: newLocation.current.weather.first.description,
+          temp: newLocation.current.temp,
           coordinates: location.coordinates,
-          humidity: newLocation.daily!.first.humidity.toString(),
-          main: newLocation.current!.weather!.first.main,
-          moon_phase: newLocation.daily!.first.moonPhase.toString(),
+          humidity: newLocation.daily.first.humidity.toString(),
+          main: newLocation.current.weather.first.main,
+          moon_phase: newLocation.daily.first.moonPhase.toString(),
           timezone: newLocation.timezone,
-          dt: currentTime(newLocation.current!.dt!.toInt(), newLocation.timezone.toString()),
+          dt: currentTime(newLocation.current.dt!.toInt(), newLocation.timezone.toString()),
           name: location.name,
-          isDaytime: newLocation.current!.weather!.first.icon!.contains('d') ? true : false,
+          isDaytime: newLocation.current.weather.first.icon.contains('d') ? true : false,
         );
         locationList.add(location);
       }
